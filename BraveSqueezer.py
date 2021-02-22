@@ -206,7 +206,7 @@ while(True):
         printMenu()
 
     if(keyboard.is_pressed('7')):
-        print ("Open at least 3 web browsers manually and press ENTER")
+        print ("Open at least 1 Brave Browser Profile manually and press ENTER")
         os.system("pause")
         while (True):
             launchBrowsers()
