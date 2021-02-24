@@ -7,22 +7,27 @@ import os
 import subprocess
 import sys
 import psutil
+import pyperclip
 
 #Global variables
-numberOfBrowsers = 53
+numberOfBrowsers = 5
 browsersLocationsInTaskbar = arr.array('i')
 mouseShakingRecording      = arr.array('i')
 deleteAdsSequence          = arr.array('i')
+adsThisMonthCounters       = arr.array('i')
 
 #Laptop--------------------------------------------------------------------------------------------------------------------------------
-#deleteAdsSequence=[1884,1063,1852,658,1883,1058,2730,860]
-#mouseShakingRecording=[1110,856,1460,633,1615,580,1953,507,2953,241,3165,206,3165,206,2966,282,2711,477,2528,611,2370,533,2330,425,2377,339,2585,251,2918,187,3137,207,3140,364,
-                       #2949,521,2398,630,2216,407,2355,316,2458,411,2412,595,2237,643,2214,493,2496,362,2803,416,2887,368,2768,328,2808,444,2737,576,2620,547,2643,471,2754,446,
-#                       2835,465,2807,413,2739,381,2719,410,2656,463,2596,476,2582,480,2566,477,2566,477,2566,477,2566,477,2365,520,2096,601,1540,752,1325,835,1270,858,1331,808]
-#Xx = 3261
-#Xy = 123
-#searchBar_x=2485
-#searchBar_y=160
+deleteAdsSequence=[1884,1063,1852,658,1883,1058,2730,860]
+mouseShakingRecording=[1110,856,1460,633,1615,580,1953,507,2953,241,3165,206,3165,206,2966,282,2711,477,2528,611,2370,533,2330,425,2377,339,2585,251,2918,187,3137,207,3140,364,
+                       2949,521,2398,630,2216,407,2355,316,2458,411,2412,595,2237,643,2214,493,2496,362,2803,416,2887,368,2768,328,2808,444,2737,576,2620,547,2643,471,2754,446,
+                       2835,465,2807,413,2739,381,2719,410,2656,463,2596,476,2582,480,2566,477,2566,477,2566,477,2566,477,2365,520,2096,601,1540,752,1325,835,1270,858,1331,808]
+browsersLocationsInTaskbar=[]
+Xx = 3261
+Xy = 123
+searchBar_x=2485
+searchBar_y=160
+adsCounterx=2649
+adsCountery=716
 #-------------------------------------------------------------------------------------------------------------------------------------
 
 #Baldo config-------------------------------------------------------------------------------------------------------------------------
@@ -51,24 +56,8 @@ deleteAdsSequence          = arr.array('i')
 #-------------------------------------------------------------------------------------------------------------------------------------
 
 
-#Sharkon Coordinate Config------------------------------------------------------------------------------------------------------------
-deleteAdsSequence=[1247,1003,1220,754,1245,1004]
-mouseShakingRecording=[1573,544,1617,402,1682,256,1725,198,1803,147,1852,144,1989,159,2061,171,2130,221,2176,295,2196,381,2193,457,
-                        2148,547,2082,630,1981,702,1878,745,1769,742,1672,667,1673,565,1772,525,1942,543,2127,583,2431,524,2541,345,
-                        2530,234,2484,189,2402,160,2332,148,2302,213,2335,463,2310,627,2198,717,2102,568,2293,290,2099,553,1967,281,
-                        2064,316,1778,522,1669,402,1666,295,1666,228,1707,191,1829,154,1950,153,2085,169,2168,188,2274,236,2317,349,
-                        2313,468,2277,593,2248,658,2144,750,1983,832,1813,841,1636,787,1544,699,1501,497,1560,329,1690,224,1791,189,
-                        1947,175,2192,219,2318,325,2321,432,2276,553,2190,658,2076,737,1875,742,1681,678,1580,574,1590,340,1675,240,
-                        1826,200,1983,195,2118,219,2218,291,2262,435,2240,550,2140,649,1998,713,1857,704,1721,443,1793,285,1996,135,
-                        2122,118,2241,183,2280,342,2174,530,2059,576,1930,574,1870,549,1855,537,1840,518,1838,514,1835,509]
-Xx = 2533
-Xy = 5
-searchBar_x = 1702
-searchBar_y = 38
-#-------------------------------------------------------------------------------------------------------------------------------------
-
-print("Brave ADs Squeezer v1.1 (Valverde edition)")
-print("                                          by Jose Peral, 21st Feb 2021")
+print("Brave ADs Squeezer v1.2")
+print("                                          by Jose Peral, 24st Feb 2021")
 print(" ")
 
 def printMenu():
@@ -78,25 +67,30 @@ def printMenu():
     print("Type '4' to Record the icons locations in the task bar")
     print("Type '5' to record the close [X] button location")
     print("Type '6' to record the Search Bar location")
-    print("Type '7' Ads extraction loop! ")        
-    print("Type '8' Close all browsers ")            
+    print("Type '7' to record the Ads Counter location")    
+    print("Type '8' Ads extraction loop! ")        
+    print("Type '9' Close all browsers ")            
 
 def launchBrowsers():
     os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')
-
-    for i in range(2,numberOfBrowsers):
+    adsThisMonthCounters=[]  # delete the array
+    for i in range(1,numberOfBrowsers):
         command = 'brave.exe --profile-directory="Profile %d"' % i
-        print(command)
         os.system(command)
         while(psutil.cpu_percent() > 90.0):
             pass
-        time.sleep(0.25)
-        pyautogui.hotkey('win','up')
-        time.sleep(0.25)
-        searchSomething()
-
-    print("%d Brave Profiles launched!" % i)            
-
+        time.sleep(0.5)
+        pyautogui.hotkey('win','up')   #Maximize all the browser window to align the [x] buttons on the same coordinates.
+        time.sleep(0.5)
+        searchRewards()        
+        time.sleep(1)        
+        pyautogui.doubleClick(adsCounterx,adsCountery)
+        pyautogui.hotkey('ctrl','c')
+        ads=int(pyperclip.paste())
+        adsThisMonthCounters.append(ads)
+        print("Profile %d launched, Ads this mount counter: %d" % (i,ads))
+    print("Summary:")             
+    print("Done")             
 
 def closeBrowsers():
     print("Closing Browsers...")                
@@ -152,6 +146,12 @@ def searchSomething():
     pyautogui.press('enter')
     print("Done")               
 
+def searchRewards():
+    pyautogui.moveTo(searchBar_x,searchBar_y,duration=1)
+    pyautogui.click(searchBar_x, searchBar_y, clicks=1, interval=0.1, button='left')    
+    pyautogui.write("brave://rewards", interval=0.1)
+    pyautogui.press('enter')
+
 
 printMenu()
 
@@ -165,6 +165,7 @@ while(True):
 
     if(keyboard.is_pressed('2')):
         print ("Recording the ADS notification sequence... Press ENTER to finish")        
+        deleteAdsSequence=[]  # delete the array        
         time.sleep(1)        
         while (True):
             if (mouse.is_pressed("left")):
@@ -172,26 +173,29 @@ while(True):
                 while (mouse.is_pressed("left")==True):
                     pass
                 deleteAdsSequence.extend([x,y])
-                print("x=",x,"y=",y)               
+                print("%d,%d" % (x,y))
             if(keyboard.is_pressed('enter')):
                 break
         printMenu()
 
     if(keyboard.is_pressed('3')):
         print ("Recording Mouse Shaking Movements... Press ENTER to finish")        
+        mouseShakingRecording=[]  # delete the array                
         time.sleep(1)        
         i=0
+        mouseShakingRecording.clear()
         while(True):
             time.sleep(0.1)
             x,y=mouse.get_position()
             mouseShakingRecording.extend([x,y])
-            print("x=",x,"y=",y)
+            print("%d,%d" % (x,y))
             if(keyboard.is_pressed('enter')):
                 break
         printMenu()            
 
     if(keyboard.is_pressed('4')):
         print ("Recording opened Brave browsers icons coordinates... Press ENTER to finish")        
+        browsersLocationsInTaskbar=[]  # delete the array                
         time.sleep(1)        
         while (True):
             if (mouse.is_pressed("left")):
@@ -219,23 +223,30 @@ while(True):
         while (mouse.is_pressed("left")==False):
             pass
         searchBar_x,searchBar_y=mouse.get_position()
-        print("Search Bar area located @ x=",searchBar_x,"y=",searchBar_y)
+        print("%d,%d" % (searchBar_x,searchBar_y))
         printMenu()
 
     if(keyboard.is_pressed('7')):
-        print ("Open at least 1 Brave Browser Profile manually and press ENTER")
+        print ("Recording 'Ads received this month' counter coordinates...")
+        time.sleep(1)        
+        while (mouse.is_pressed("left")==False):
+            pass
+        adsCounterx,adsCountery=mouse.get_position()
+        print("adsCounterx=%d" % adsCounterx)
+        print("adsCountery=%d" % adsCountery)
+        printMenu()
+
+    if(keyboard.is_pressed('8')):
+        print ("Open at least 1 Brave Browser Profile manually and then and press ENTER")
         os.system("pause")
         while (True):
             launchBrowsers()
-            searchSomething()            
             shakeMouse()            
             print ("Waiting 30 seconds...")
             time.sleep(30)            
-            searchSomething()
-            shakeMouse()     
             deleteAdsNotifications()                   
             closeBrowsers()
 
-    if(keyboard.is_pressed('8')):
+    if(keyboard.is_pressed('9')):
         closeBrowsers()      
         printMenu()
