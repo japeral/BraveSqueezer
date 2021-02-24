@@ -8,13 +8,17 @@ import subprocess
 import sys
 import psutil
 import pyperclip
+from openpyxl import Workbook
+from datetime import datetime
 
 #Global variables
-numberOfBrowsers = 5
+numberOfBrowsers = 60
 browsersLocationsInTaskbar = arr.array('i')
 mouseShakingRecording      = arr.array('i')
 deleteAdsSequence          = arr.array('i')
 adsThisMonthCounters       = arr.array('i')
+workbook = Workbook()
+sheet = workbook.active
 
 #Sharkon--------------------------------------------------------------------------------------------------------------------------------
 deleteAdsSequence=[1246,1000,1219,756,1246,1007]
@@ -32,8 +36,8 @@ Xx = 2537
 Xy = 8
 searchBar_x=1610
 searchBar_y=38
-adsCounterx=1962
-adsCountery=536
+adsCounterx=1973
+adsCountery=714
 #-------------------------------------------------------------------------------------------------------------------------------------
 
 #Baldo config-------------------------------------------------------------------------------------------------------------------------
@@ -80,23 +84,34 @@ def printMenu():
 def launchBrowsers():
     os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')
     adsThisMonthCounters=[]  # delete the array
-    for i in range(1,numberOfBrowsers):
+    sheet['A1']="Profile"
+    sheet['B1']="Ads this month"   
+    for i in range(2,numberOfBrowsers):
         command = 'brave.exe --profile-directory="Profile %d"' % i
         os.system(command)
         while(psutil.cpu_percent() > 90.0):
             pass
-        time.sleep(0.5)
+        time.sleep(1)
         pyautogui.hotkey('win','up')   #Maximize all the browser window to align the [x] buttons on the same coordinates.
-        time.sleep(0.5)
         searchRewards()        
         time.sleep(1)        
+        pyautogui.moveTo(adsCounterx,adsCountery,duration=2)
+        pyautogui.vscroll(100)
+        time.sleep(1)                
         pyautogui.doubleClick(adsCounterx,adsCountery)
         pyautogui.hotkey('ctrl','c')
-        ads=int(pyperclip.paste())
+        try:
+            ads=int(pyperclip.paste())
+        except:
+            ads=0
         adsThisMonthCounters.append(ads)
-        print("Profile %d launched, Ads this month counter: %d" % (i,ads))
-    print("Summary:")             
-    print("Done")             
+        print("Profile %d launched, Ads this month counter: %d" % (i,ads) )
+        sheet['A%d' %i]=i
+        sheet['B%d' %i]=ads
+    now=datetime.now()
+    dirname,filename = os.path.split(os.path.abspath(__file__))
+    workbook.save(filename=dirname + "\\" + now.strftime("%Y_%m_%d__%H_%M_%S_") + "balances.xlsx")
+    print("Done")
 
 def closeBrowsers():
     print("Closing Browsers...")                
