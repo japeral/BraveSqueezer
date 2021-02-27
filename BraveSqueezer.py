@@ -24,7 +24,7 @@ sheet = workbook.active
 deleteAdsSequence=[1884,1063,1852,658,1883,1058,2730,860]
 mouseShakingRecording=[1110,856,1460,633,1615,580,1953,507,2953,241,3165,206,3165,206,2966,282,2711,477,2528,611,2370,533,2330,425,2377,339,2585,251,2918,187,3137,207,3140,364,
                        2949,521,2398,630,2216,407,2355,316,2458,411,2412,595,2237,643,2214,493,2496,362,2803,416,2887,368,2768,328,2808,444,2737,576,2620,547,2643,471,2754,446,
-                       2835,465,2807,413,2739,381,2719,410,2656,463,2596,476,2582,480,2566,477,2566,477,2566,477,2566,477,2365,520,2096,601,1540,752,1325,835,1270,858,1331,808]
+                       2835,465,2807,413,2739,381,2719,410,2656,463,2596,476,2582,480,2566,477,2566,477,2566,477,2566,477,2365,520,2096,601]
 browsersLocationsInTaskbar=[]
 Xx = 3261
 Xy = 123
@@ -105,13 +105,15 @@ def launchBrowsers():
         while(psutil.cpu_percent() > 90.0):
             pass
         time.sleep(1)
-        pyautogui.hotkey('win','up')   #Maximize all the browser window to align the [x] buttons on the same coordinates.
+        pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
+        time.sleep(0.5)        
         searchRewards()        
-        time.sleep(1)        
-        pyautogui.moveTo(adsCounterx,adsCountery,duration=2)
-        pyautogui.vscroll(100)
-        time.sleep(1)                
+        time.sleep(0.5)
+        pyautogui.moveTo(adsCounterx,adsCountery,duration=1)
+        pyautogui.vscroll(200)
+        time.sleep(0.5)                
         pyautogui.doubleClick(adsCounterx,adsCountery)
+        time.sleep(0.5)        
         pyautogui.hotkey('ctrl','c')
         try:
             ads=int(pyperclip.paste())
@@ -123,6 +125,7 @@ def launchBrowsers():
         sheet['B%d' %i]=ads
     now=datetime.now()
     dirname,filename = os.path.split(os.path.abspath(__file__))
+    filename=[]
     workbook.save(filename=dirname + "\\" + now.strftime("%Y_%m_%d__%H_%M_%S_") + "balances.xlsx")
     print("Done")
 
@@ -275,12 +278,17 @@ while(True):
         os.system("pause")
         while (True):
             launchBrowsers()
-            shakeMouse()            
-            print ("Waiting 30 seconds...")
-            time.sleep(30)            
-            deleteAdsNotifications()                   
+            for i in range(1,5):
+                shakeMouse()            
+                print ("Waiting 60 seconds... iteration %d" %i)
+                time.sleep(60)          
+                searchSomething()    
+                time.sleep(2)
+                deleteAdsNotifications()
+                time.sleep(2)
             closeBrowsers()
 
     if(keyboard.is_pressed('9')):
         closeBrowsers()      
         printMenu()
+
