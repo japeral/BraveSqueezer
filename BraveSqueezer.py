@@ -12,7 +12,7 @@ from openpyxl import Workbook
 from datetime import datetime
 
 #Global variables
-numberOfBrowsers = 60
+numberOfBrowsers = 61
 browsersLocationsInTaskbar = arr.array('i')
 mouseShakingRecording      = arr.array('i')
 deleteAdsSequence          = arr.array('i')
@@ -262,9 +262,10 @@ while(True):
         os.system("pause")
         while (True):
             launchBrowsers()
-            shakeMouse()            
-            print ("Waiting 30 seconds...")
-            time.sleep(30)            
+            print ("Waiting 5 minutes...")
+            time.sleep(60*5)            
+            shakeMouse()
+            searchSomething()            
             deleteAdsNotifications()                   
             closeBrowsers()
 
