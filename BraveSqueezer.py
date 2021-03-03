@@ -84,7 +84,9 @@ print("                                          by Jose Peral, 24st Feb 2021")
 print(" ")
 
 def printMenu():
-    print("Type '1' to launch the Brave Browser instances")
+
+    print("Type '0' to launch the Brave Browser instances only")
+    print("Type '1' to launch the Brave Browser search /rewards and collect ads balances into a spreadsheet")
     print("Type '2' to Record Ads Notification deletion sequence")    
     print("Type '3' to Record mouse Shaking sequence")
     print("Type '4' to Record the icons locations in the task bar")
@@ -94,7 +96,7 @@ def printMenu():
     print("Type '8' Ads extraction loop! ")        
     print("Type '9' Close all browsers ")            
 
-def launchBrowsers():
+def launchBrowsersGetBalances():
     os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')
     adsThisMonthCounters=[]  # delete the array
     sheet['A1']="Profile"
@@ -129,10 +131,22 @@ def launchBrowsers():
     workbook.save(filename=dirname + "\\" + now.strftime("%Y_%m_%d__%H_%M_%S_") + "balances.xlsx")
     print("Done")
 
+def launchBrowsers():
+    os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')
+    for i in range(2,numberOfBrowsers):
+        command = 'brave.exe --profile-directory="Profile %d"' % i
+        os.system(command)
+        while(psutil.cpu_percent() > 90.0):
+            pass
+        time.sleep(1)
+        pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
+        time.sleep(0.5)        
+    print("Done")
+
 def closeBrowsers():
     print("Closing Browsers...")                
     pyautogui.moveTo(Xx,Xy,duration=2)
-    pyautogui.click(Xx, Xy, clicks=numberOfBrowsers, interval=0.25, button='left')
+    pyautogui.click(Xx, Xy, clicks=numberOfBrowsers, interval=0.5, button='left')
     print("Done")            
 
 
@@ -178,8 +192,8 @@ def searchSomething():
     print("Searching something in the browser...")                
     pyautogui.moveTo(searchBar_x,searchBar_y,duration=1)
     pyautogui.click(searchBar_x, searchBar_y, clicks=1, interval=0.1, button='left')    
-    #pyautogui.write("www.github.com/japeral", interval=0.25)
-    pyautogui.write("brave://rewards/", interval=0.25)
+    pyautogui.write("www.github.com/japeral", interval=0.25)
+    #pyautogui.write("brave://rewards/", interval=0.25)
     pyautogui.press('enter')
     print("Done")               
 
@@ -195,9 +209,12 @@ printMenu()
 while(True):
     time.sleep(0.2)
 
+    if(keyboard.is_pressed('0')):
+        launchBrowsers()
+        printMenu()
     
     if(keyboard.is_pressed('1')):
-        launchBrowsers()
+        launchBrowsersGetBalances()
         printMenu()
 
     if(keyboard.is_pressed('2')):
