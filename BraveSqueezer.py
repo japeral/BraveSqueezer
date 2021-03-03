@@ -10,6 +10,9 @@ import psutil
 import pyperclip
 from openpyxl import Workbook
 from datetime import datetime
+import cv2
+import imutils
+import numpy
 
 #Global variables
 numberOfBrowsers = 61
@@ -66,22 +69,48 @@ adsCountery=714
 #-------------------------------------------------------------------------------------------------------------------------------------
 
 
-print("Brave ADs Squeezer v1.2")
-print("                                          by Jose Peral, 24st Feb 2021")
+print("Brave ADs Squeezer v1.3")
+print("                                          by Jose Peral, 3rd March 2021")
 print(" ")
 
-def printMenu():
-    print("Type '1' to launch the Brave Browser instances")
-    print("Type '2' to Record Ads Notification deletion sequence")    
-    print("Type '3' to Record mouse Shaking sequence")
-    print("Type '4' to Record the icons locations in the task bar")
-    print("Type '5' to record the close [X] button location")
-    print("Type '6' to record the Search Bar location")
-    print("Type '7' to record the Ads Counter location")    
-    print("Type '8' Ads extraction loop! ")        
-    print("Type '9' Close all browsers ")            
+def printMainMenu():
+    print("--------------------------------------------------------------------------------------------------")
+    print("  NOTE: Close all brave browser instances, and the open one and close one on the primary display  ")
+    print("        that will force all the new instances to open on the primary display.                     ")
+    print("                                                                                                  ")
+    print("        If you lose control, press (ctrl + alt + del) to trigger the failsafe mechanism and stop  ")
+    print("        the execution.                                                                            ")
+    print("                                                                                                  ")
+    print("MAIN MENU")
+    print("---------")
+    print("  Type  '0'  to enter the Locations Recording Menu")
+    print("  Type  '1'  to enter the Manual Menu")
+    print("  Type  '2'  to run the automated Ads extraction loop! ")
+    print("  Type 'esc' to terminate this program")
 
-def launchBrowsers():
+def printRecordingMenu():
+    print("  RECORDING MENU")
+    print("    Type  '0'  to Record Ads Notification deletion sequence")    
+    print("    Type  '1'  to Record mouse Shaking sequence")
+    print("    Type  '2'  to Record the icons locations in the task bar")
+    print("    Type  '3'  to record the close [X] button location")
+    print("    Type  '4'  to record the Search Bar location")
+    print("    Type  '5'  to record the Ads Counter location")    
+    print("    Type  '6'  to Record the captcha target shape text location")
+    print("    Type  '7'  to Record the Ads Notifications Area location (windows pop-ups)")    
+    print("    Type 'esc' to return to Main Menu")    
+
+def printManualMenu():
+    print("  MANUAL MENU")
+    print("    Type  '0'  to launch the %d Brave Browser instances only" %numberOfBrowsers)
+    print("    Type  '1'  to launch the %d Brave Browser search /rewards and collect ads balances into a spreadsheet" %numberOfBrowsers)
+    print("    Type  '2'  to Close all browsers ")  
+    print("    Type  '3'  to Solve monthly Captcha")
+    print("    Type  '4'  to Click all 21 notifications")
+    print("    Type  '5'  to Click the browsers icons in the taskbar")
+    print("    Type 'esc' to return to Main Menu")        
+
+def launchBrowsersGetBalances():
     os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')
     adsThisMonthCounters=[]  # delete the array
     sheet['A1']="Profile"
@@ -92,7 +121,10 @@ def launchBrowsers():
         while(psutil.cpu_percent() > 90.0):
             pass
         time.sleep(1)
-        pyautogui.hotkey('win','up')   #Maximize all the browser window to align the [x] buttons on the same coordinates.
+        pyautogui.press('esc')         #to close the 'Restore pages?' popup
+        time.sleep(0.5)                
+        pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
+        time.sleep(0.5)        
         searchRewards()        
         time.sleep(1)        
         pyautogui.moveTo(adsCounterx,adsCountery,duration=2)
@@ -113,12 +145,25 @@ def launchBrowsers():
     workbook.save(filename=dirname + "\\" + now.strftime("%Y_%m_%d__%H_%M_%S_") + "balances.xlsx")
     print("Done")
 
+def launchBrowsers():
+    os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')
+    for i in range(2,numberOfBrowsers):
+        command = 'brave.exe --profile-directory="Profile %d"' % i
+        os.system(command)
+        while(psutil.cpu_percent() > 90.0): #Wait for the CPU load to go below 90% before launching a new instance
+            pass
+        time.sleep(1)
+        pyautogui.press('esc')         #to close the 'Restore pages?' popup        
+        time.sleep(0.5)                
+        pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
+        time.sleep(0.5)        
+    print("Done")
+
 def closeBrowsers():
     print("Closing Browsers...")                
     pyautogui.moveTo(Xx,Xy,duration=2)
-    pyautogui.click(Xx, Xy, clicks=numberOfBrowsers, interval=0.25, button='left')
-    print("Done")            
-
+    pyautogui.click(Xx, Xy, clicks=numberOfBrowsers, interval=0.5, button='left')
+    print("Done")
 
 def touchBrowsers():
     i=0
@@ -141,7 +186,7 @@ def deleteAdsNotifications():
         y=deleteAdsSequence[i+1]
         print("sample: ", i, "x=",x, "y=",y )
         pyautogui.moveTo(x,y,duration=1)
-        pyautogui.click(x, y, clicks=1, interval=1, button='left')
+        pyautogui.click(x, y, clicks=1, interval=4, button='left')
         i=i+2
     else:
         print("Done") 
@@ -162,8 +207,7 @@ def searchSomething():
     print("Searching something in the browser...")                
     pyautogui.moveTo(searchBar_x,searchBar_y,duration=1)
     pyautogui.click(searchBar_x, searchBar_y, clicks=1, interval=0.1, button='left')    
-    #pyautogui.write("www.github.com/japeral", interval=0.25)
-    pyautogui.write("brave://rewards/", interval=0.25)
+    pyautogui.write("www.github.com/japeral", interval=0.25)
     pyautogui.press('enter')
     print("Done")               
 
@@ -173,102 +217,340 @@ def searchRewards():
     pyautogui.write("brave://rewards", interval=0.1)
     pyautogui.press('enter')
 
+def clickAdsNotifications():
+    print("Clicking on the Ads Notifications...")
+    pyautogui.moveTo(adsNotificationX,adsNotificationY,duration=1)
+    pyautogui.click(adsNotificationX, adsNotificationX, clicks=21, interval=3, button='left')
+    print("Done")            
 
-printMenu()
-
+printMainMenu()
 while(True):
     time.sleep(0.2)
 
-    
+    if(keyboard.is_pressed('0')):
+
+        printRecordingMenu()
+        while(True):
+            time.sleep(0.2)
+
+            if(keyboard.is_pressed('0')):
+                print ("Recording the ADS Notification deletion sequence... Press ENTER to finish")        
+                deleteAdsSequence=[]  # delete the array        
+                time.sleep(1)   
+                print("deleteAdsSequence=[",end='')     
+                while (True):
+                    if (mouse.is_pressed("left")):
+                        x,y=mouse.get_position()
+                        while (mouse.is_pressed("left")==True):
+                            pass
+                        deleteAdsSequence.extend([x,y])
+                        print("%d,%d," % (x,y),end='')
+                    if(keyboard.is_pressed('enter')):
+                        break
+                print("\b]")                
+                printRecordingMenu()
+
+            if(keyboard.is_pressed('1')):
+                print ("Recording Mouse Shaking Movements sequence... Press ENTER to finish")        
+                mouseShakingRecording=[]  # delete the array                
+                time.sleep(1)        
+                i=0
+                mouseShakingRecording.clear()
+                print("mouseShakingRecording=[",end='')
+                while(True):
+                    time.sleep(0.1)
+                    x,y=mouse.get_position()
+                    mouseShakingRecording.extend([x,y])
+                    print("%d,%d," % (x,y), end='')
+                    if(keyboard.is_pressed('enter')):
+                        break
+                print("\b]")
+                printRecordingMenu()
+
+            if(keyboard.is_pressed('2')):
+                print ("Recording opened Brave browsers icons locations... Press ENTER to finish")        
+                browsersLocationsInTaskbar=[]  # delete the array                
+                time.sleep(1)        
+                print("browsersLocationsInTaskbar=[",end='')
+                while (True):
+                    if (mouse.is_pressed("left")):
+                        x,y=mouse.get_position()
+                        while (mouse.is_pressed("left")==True):
+                            pass
+                        browsersLocationsInTaskbar.extend([x,y])
+                        print("%d,%d," %(x,y),end='')
+                    if(keyboard.is_pressed('enter')):
+                        break
+                print("\b]")
+                printRecordingMenu()
+
+            if(keyboard.is_pressed('3')):
+                print ("Recording [X] button coordinates...")
+                time.sleep(1)        
+                while (mouse.is_pressed("left")==False):
+                    pass
+                Xx,Xy=mouse.get_position()
+                print("Xx,Xy=[%d,%d]" %(Xx,Xy))
+                printRecordingMenu()
+
+            if(keyboard.is_pressed('4')):
+                print ("Recording the Search Bar coordinates...")
+                time.sleep(1)        
+                while (mouse.is_pressed("left")==False):
+                    pass
+                searchBar_x,searchBar_y=mouse.get_position()
+                print("searchBar_x,searchBar_y=[%d,%d]" % (searchBar_x,searchBar_y))
+                printRecordingMenu()
+
+            if(keyboard.is_pressed('5')):
+                print ("Recording 'Ads received this month' counter coordinates...")
+                time.sleep(1)        
+                while (mouse.is_pressed("left")==False):
+                    pass
+                adsCounterx,adsCountery=mouse.get_position()
+                print("adsCounterx,adsCountery=[%d,%d]" % (adsCounterx,adsCountery))
+                printRecordingMenu()
+
+            if(keyboard.is_pressed('6')):
+                print ("Recording Record the captcha target shape text coordiantes...")
+                time.sleep(1)
+                while (mouse.is_pressed("left")==False):
+                    pass
+                captchaX,captchaY=mouse.get_position()
+                try:
+                    pyautogui.screenshot("month.png", region=(captchaX,captchaY,50,50))
+                except:
+                    print("Error taking the snapshot. You need to place your Brave browser on your primary monitor.")
+                print("captchaX,captchaY=[%d,%d]" %(captchaX,captchaY))
+                printRecordingMenu()
+
+            if(keyboard.is_pressed('7')):
+                print ("Recording Ads Notification Area (Windows pop-ups)...")
+                time.sleep(1)        
+                while (mouse.is_pressed("left")==False):
+                    pass
+                adsNotificationX,adsNotificationY=mouse.get_position()
+                print("adsNotificationX,adsNotificationY=[%d,%d]" %(adsNotificationX,adsNotificationY))
+                printRecordingMenu()
+
+            if(keyboard.is_pressed('esc')):
+                printMainMenu()
+                time.sleep(1)
+                break
+
     if(keyboard.is_pressed('1')):
-        launchBrowsers()
-        printMenu()
+
+        printManualMenu()
+        while(True):
+            time.sleep(0.2)
+
+            if(keyboard.is_pressed('0')):
+                launchBrowsers()
+                printManualMenu()
+    
+            if(keyboard.is_pressed('1')):
+                launchBrowsersGetBalances()
+                printManualMenu()
+
+            if(keyboard.is_pressed('2')):
+                closeBrowsers()      
+                printManualMenu()
+
+            if(keyboard.is_pressed('3')):
+
+                print("Solving the monthly captcha...")
+                #opening rewards
+                pyautogui.press('esc')         #to close the 'Restore pages?' popup
+                time.sleep(0.5)                
+                pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
+                time.sleep(0.5)        
+                searchRewards()        
+                time.sleep(0.5)
+
+                #check if the orange rewards button is present
+                rewardsButtonLocation = pyautogui.locateOnScreen('QRCode_button.png')
+                #rewardsButtonLocation = pyautogui.locateOnScreen('Rewards_button.png')
+                try:                    
+                    rewardsButtonCenter = pyautogui.center(rewardsButtonLocation)
+                    x,y=rewardsButtonCenter
+                    #pyautogui.click(x,y)
+                except:
+                    print("Rewards button not present!, exiting...")
+                    break
+                time.sleep(1)
+
+                #capture the target
+                pyautogui.moveTo(captchaX,captchaY,duration=1)
+                pyautogui.vscroll(200)
+                time.sleep(0.5)
+                pyautogui.doubleClick(captchaX,captchaY)
+                time.sleep(0.5)        
+                pyautogui.hotkey('ctrl','c')
+                target=pyperclip.paste()
+                print("Detected target: %s" %target)
+
+                #img=pyautogui.screenshot("screenshot.png", region=(int(captchaX),int(captchaY),400,500))
+                #open_cv_image = numpy.array(img)
+                open_cv_image = cv2.imread("screenshot.png")
+
+                #open_cv_image = open_cv_image[:, :, ::-1].copy()         # Convert RGB to BGR 
+                open_cv_image = cv2.cvtColor(open_cv_image, cv2.COLOR_BGR2RGB)
+                
+
+                #cv2.imshow('image',open_cv_image)
+                #cv2.waitKey(0)        
+                    
+                gray = cv2.cvtColor(open_cv_image, cv2.COLOR_BGR2GRAY)
+                #cv2.imshow('gray',gray)
+                #cv2.waitKey(0)        
+
+                blurred = cv2.GaussianBlur(gray, (17, 17), 0)
+                #cv2.imshow('blurred',blurred)
+                #cv2.waitKey(0)        
+
+                thresh = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY_INV)[1]
+                #cv2.imshow('thresh',thresh)
+                #cv2.waitKey(0)        
+
+                cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                cnts = imutils.grab_contours(cnts)
+                
+                #init the captcha icons locations
+                square_X=0
+                square_Y=0
+                circle_X=0
+                circle_Y=0
+                triangle_X=0
+                triangle_Y=0
+                redtriangle_X=0
+                redtriangle_Y=0
+
+                # loop over the contours
+                i=0
+                for c in cnts:
+
+                    # compute the center of the contour
+                    M = cv2.moments(c)
+                    try:
+                        cX = int(M["m10"] / M["m00"])
+                    except:
+                        cX=0
+
+                    try:
+                        cY = int(M["m01"] / M["m00"])
+                    except:
+                        cY=0
+
+                    #identify the shape by the number of vertices, 3=triangle, 4=square,5=pentagon,5+=circle
+                    shape = "unidentified"
+                    peri = cv2.arcLength(c, True)
+                    approx = cv2.approxPolyDP(c, 0.04 * peri, True)
+                    if len(approx) == 3:
+                        shape = "triangle"
+                    elif len(approx) == 4:
+                        (x, y, w, h) = cv2.boundingRect(approx)
+                        ar = w / float(h)
+                        shape = "square" if ar >= 0.95 and ar <= 1.05 else "rectangle"
+                    elif len(approx) == 5:
+                        shape = "pentagon"
+                    else:
+                        shape = "circle"            
+
+                    # draw the contour and center of the shape on the image
+                    cv2.drawContours(open_cv_image, [c], -1, (0, 255, 0), 2)
+                    cv2.circle(open_cv_image, (cX, cY), 7, (255, 0, 0), -1)
+                    cv2.putText(open_cv_image, shape, (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+                    # show the image
+                    cv2.imshow("Image", open_cv_image)
+                    cv2.waitKey(0)
+                    i=i+1
+
+                    # save the icons locations
+                    if (i<3 and shape == "square"):
+                        square_X=captchaX+cX
+                        square_Y=captchaY+cY
+                        print("square detected at %d,%d" %(square_X,square_Y))
+                    if (i<3 and shape == "circle"):
+                        circle_X=captchaX+cX
+                        circle_Y=captchaY+cY
+                        print("circle detected at %d,%d" %(circle_X,circle_Y))
+                    if (i<3 and shape == "triangle"):
+                        triangle_X=captchaX+cX
+                        triangle_Y=captchaY+cY
+                        print("triangle detected at %d,%d" %(triangle_X,triangle_Y))
+                    if (i>=3 and shape == "triangle"):
+                        redtriangle_X=captchaX+cX
+                        redtriangle_Y=captchaY+cY
+                        print("red triangle detected at %d,%d" %(redtriangle_X,redtriangle_Y))                        
+                    if (i==4):
+                        break  # Discard the rest of the contours           
+
+                #debug
+                target="circle"
+
+                # drag from red triangle and drop on target.
+                if(redtriangle_X!=0 and redtriangle_Y!=0):
+                    print("Red Triangle shape detected!, solving the captcha...")
+                    pyautogui.moveTo(redtriangle_X,redtriangle_Y,duration=4,tween=pyautogui.easeInOutElastic)
+                    pyautogui.mouseDown(button='left')
+                    if  (target == "circle"):
+                        print("dropping into the circle target...")
+                        pyautogui.moveTo(circle_X,circle_Y,duration=4,tween=pyautogui.easeInOutElastic)
+                    elif(target == "square"):
+                        print("dropping into the square target...")                
+                        pyautogui.moveTo(square_X,square_Y,duration=4,tween=pyautogui.easeInOutElastic)                
+                    elif(target == "triangle"):
+                        print("dropping into the triangle target...")                                
+                        pyautogui.moveTo(triangle_X,triangle_Y,duration=4,tween=pyautogui.easeInOutElastic)
+
+                    pyautogui.mouseUp(button='left')
+                    print("Captcha solved!")
+                else:
+                    print("Error! Red Triangle not detected.")
+                
+                cv2.destroyAllWindows()        
+                cv2.waitKey(0)
+                printManualMenu()
+
+            if(keyboard.is_pressed('4')):
+                print ("Clicking Ads Notification Area...")
+                clickAdsNotifications()
+                print("Done")
+                printManualMenu()        
+
+            if(keyboard.is_pressed('5')):
+                print ("Clicking Browsers Icons...")
+                touchBrowsers()
+                print("Done")
+                printManualMenu()
+
+            if(keyboard.is_pressed('esc')):
+                printMainMenu()
+                time.sleep(1)                
+                break
+
 
     if(keyboard.is_pressed('2')):
-        print ("Recording the ADS notification sequence... Press ENTER to finish")        
-        deleteAdsSequence=[]  # delete the array        
-        time.sleep(1)        
-        while (True):
-            if (mouse.is_pressed("left")):
-                x,y=mouse.get_position()
-                while (mouse.is_pressed("left")==True):
-                    pass
-                deleteAdsSequence.extend([x,y])
-                print("%d,%d" % (x,y))
-            if(keyboard.is_pressed('enter')):
-                break
-        printMenu()
-
-    if(keyboard.is_pressed('3')):
-        print ("Recording Mouse Shaking Movements... Press ENTER to finish")        
-        mouseShakingRecording=[]  # delete the array                
-        time.sleep(1)        
-        i=0
-        mouseShakingRecording.clear()
-        while(True):
-            time.sleep(0.1)
-            x,y=mouse.get_position()
-            mouseShakingRecording.extend([x,y])
-            print("%d,%d" % (x,y))
-            if(keyboard.is_pressed('enter')):
-                break
-        printMenu()            
-
-    if(keyboard.is_pressed('4')):
-        print ("Recording opened Brave browsers icons coordinates... Press ENTER to finish")        
-        browsersLocationsInTaskbar=[]  # delete the array                
-        time.sleep(1)        
-        while (True):
-            if (mouse.is_pressed("left")):
-                x,y=mouse.get_position()
-                while (mouse.is_pressed("left")==True):
-                    pass
-                browsersLocationsInTaskbar.extend([x,y])
-                print("x=",x,"y=",y)               
-            if(keyboard.is_pressed('enter')):
-                break
-        printMenu()
-
-    if(keyboard.is_pressed('5')):
-        print ("Recording [X] button coordinates...")
-        time.sleep(1)        
-        while (mouse.is_pressed("left")==False):
-            pass
-        Xx,Xy=mouse.get_position()
-        print("X Button located @ x=",Xx,"y=",Xy)
-        printMenu()
-
-    if(keyboard.is_pressed('6')):
-        print ("Recording the Search Bar coordinates...")
-        time.sleep(1)        
-        while (mouse.is_pressed("left")==False):
-            pass
-        searchBar_x,searchBar_y=mouse.get_position()
-        print("%d,%d" % (searchBar_x,searchBar_y))
-        printMenu()
-
-    if(keyboard.is_pressed('7')):
-        print ("Recording 'Ads received this month' counter coordinates...")
-        time.sleep(1)        
-        while (mouse.is_pressed("left")==False):
-            pass
-        adsCounterx,adsCountery=mouse.get_position()
-        print("adsCounterx=%d" % adsCounterx)
-        print("adsCountery=%d" % adsCountery)
-        printMenu()
-
-    if(keyboard.is_pressed('8')):
         print ("Open at least 1 Brave Browser Profile manually and then and press ENTER")
         os.system("pause")
         while (True):
             launchBrowsers()
-            print ("Waiting 5 minutes...")
-            time.sleep(60*5)            
-            shakeMouse()
-            searchSomething()            
-            deleteAdsNotifications()                   
+            for i in range(1,5):
+                shakeMouse()            
+                print ("Waiting 60 seconds... iteration %d" %i)
+                time.sleep(60)          
+                searchSomething()    
+                time.sleep(2)
+                deleteAdsNotifications()
+                time.sleep(2)
+                if(keyboard.is_pressed('esc')):
+                    break
             closeBrowsers()
+        printMainMenu()
 
-    if(keyboard.is_pressed('9')):
-        closeBrowsers()      
-        printMenu()
+
+    if(keyboard.is_pressed('esc')):
+        print("Bye bye")
+        time.sleep(1)        
+        break
