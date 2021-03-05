@@ -45,7 +45,9 @@ def printMainMenu():
     print("---------")
     print("  Type  '0'  to enter the Locations Recording Menu")
     print("  Type  '1'  to enter the Manual Menu")
-    print("  Type  '2'  to run the automated Ads extraction loop! ")
+    print("  Type  '2'  automated loop. Open + shake search 5 times 5 minutes + Close all ")
+    print("  Type  '3'  automated loop. Open once, shake + search, close once.")
+    print("  Type  '4'  Solve monthly Captcha on %d browsers" %numberOfBrowsers)  
     print("  Type 'esc' to terminate this program")
 
 def printRecordingMenu():
@@ -62,14 +64,13 @@ def printRecordingMenu():
 
 def printManualMenu():
     print("  MANUAL MENU")
-    print("    Type  '0'  to launch the %d Brave Browser instances only" %numberOfBrowsers)
-    print("    Type  '1'  to launch the %d Brave Browser search /rewards and collect ads balances into a spreadsheet" %numberOfBrowsers)
-    print("    Type  '2'  to Close all browsers ")  
-    print("    Type  '3'  to Solve monthly Captcha")
-    print("    Type  '4'  to Click all 21 notifications")
-    print("    Type  '5'  to Click the browsers icons in the taskbar")
-    print("    Type  '6'  to Shake mouse")
-    print("    Type  '7'  to Search Github")
+    print("    Type  '0'  Launch %d Browser" %numberOfBrowsers)
+    print("    Type  '1'  Launch %d Browser + Collect balances into a spreadsheet" %numberOfBrowsers)
+    print("    Type  '2'  Click the browsers icons in the taskbar")
+    print("    Type  '3'  Shake mouse")
+    print("    Type  '4'  Search Github")
+    print("    Type  '5'  Click 21 notifications")    
+    print("    Type  '6'  Close %d browsers" %numberOfBrowsers)        
     print("    Type 'esc' to return to Main Menu")        
 
 def launchBrowsersGetBalances():
@@ -87,7 +88,7 @@ def launchBrowsersGetBalances():
         time.sleep(0.5)                
         pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
         time.sleep(0.5)        
-        searchRewards()        
+        searchSomething("brave://rewards")        
         time.sleep(1)        
         pyautogui.moveTo(adsCounterx,adsCountery,duration=2)
         pyautogui.vscroll(100)
@@ -164,19 +165,13 @@ def shakeMouse():
     else:
         print("Done")               
 
-def searchSomething():
+def searchSomething(url):
     print("Searching something in the browser...")                
     pyautogui.moveTo(searchBar_x,searchBar_y,duration=1)
     pyautogui.click(searchBar_x, searchBar_y, clicks=1, interval=0.1, button='left')    
-    pyautogui.write("www.github.com/japeral", interval=0.25)
+    pyautogui.write(url, interval=0.05)
     pyautogui.press('enter')
-    print("Done")               
-
-def searchRewards():
-    pyautogui.moveTo(searchBar_x,searchBar_y,duration=1)
-    pyautogui.click(searchBar_x, searchBar_y, clicks=1, interval=0.1, button='left')    
-    pyautogui.write("brave://rewards", interval=0.1)
-    pyautogui.press('enter')
+    print("Done")
 
 def clickAdsNotifications():
     print("Clicking on the Ads Notifications...")
@@ -314,195 +309,37 @@ while(True):
                 printManualMenu()
 
             if(keyboard.is_pressed('2')):
-                closeBrowsers()      
-                printManualMenu()
-
-            if(keyboard.is_pressed('3')):
-
-                print("Solving the monthly captcha...")
-                #opening rewards
-                pyautogui.press('esc')         #to close the 'Restore pages?' popup
-                time.sleep(0.5)                
-                pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
-                time.sleep(0.5)        
-                searchRewards()        
-                time.sleep(0.5)
-
-                #check if the orange rewards button is present
-                rewardsButtonLocation = pyautogui.locateOnScreen('QRCode_button.png')
-                #rewardsButtonLocation = pyautogui.locateOnScreen('Rewards_button.png')
-                try:                    
-                    rewardsButtonCenter = pyautogui.center(rewardsButtonLocation)
-                    x,y=rewardsButtonCenter
-                    #pyautogui.click(x,y)
-                except:
-                    print("Rewards button not present!, exiting...")
-                    break
-                time.sleep(1)
-
-                #capture the target
-                pyautogui.moveTo(captchaX,captchaY,duration=1)
-                pyautogui.vscroll(200)
-                time.sleep(0.5)
-                pyautogui.doubleClick(captchaX,captchaY)
-                time.sleep(0.5)        
-                pyautogui.hotkey('ctrl','c')
-                target=pyperclip.paste()
-                print("Detected target: %s" %target)
-
-                #img=pyautogui.screenshot("screenshot.png", region=(int(captchaX),int(captchaY),400,500))
-                #open_cv_image = numpy.array(img)
-                open_cv_image = cv2.imread("screenshot.png")
-
-                #open_cv_image = open_cv_image[:, :, ::-1].copy()         # Convert RGB to BGR 
-                open_cv_image = cv2.cvtColor(open_cv_image, cv2.COLOR_BGR2RGB)
-                
-
-                #cv2.imshow('image',open_cv_image)
-                #cv2.waitKey(0)        
-                    
-                gray = cv2.cvtColor(open_cv_image, cv2.COLOR_BGR2GRAY)
-                #cv2.imshow('gray',gray)
-                #cv2.waitKey(0)        
-
-                blurred = cv2.GaussianBlur(gray, (17, 17), 0)
-                #cv2.imshow('blurred',blurred)
-                #cv2.waitKey(0)        
-
-                thresh = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY_INV)[1]
-                #cv2.imshow('thresh',thresh)
-                #cv2.waitKey(0)        
-
-                cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                cnts = imutils.grab_contours(cnts)
-                
-                #init the captcha icons locations
-                square_X=0
-                square_Y=0
-                circle_X=0
-                circle_Y=0
-                triangle_X=0
-                triangle_Y=0
-                redtriangle_X=0
-                redtriangle_Y=0
-
-                # loop over the contours
-                i=0
-                for c in cnts:
-
-                    # compute the center of the contour
-                    M = cv2.moments(c)
-                    try:
-                        cX = int(M["m10"] / M["m00"])
-                    except:
-                        cX=0
-
-                    try:
-                        cY = int(M["m01"] / M["m00"])
-                    except:
-                        cY=0
-
-                    #identify the shape by the number of vertices, 3=triangle, 4=square,5=pentagon,5+=circle
-                    shape = "unidentified"
-                    peri = cv2.arcLength(c, True)
-                    approx = cv2.approxPolyDP(c, 0.04 * peri, True)
-                    if len(approx) == 3:
-                        shape = "triangle"
-                    elif len(approx) == 4:
-                        (x, y, w, h) = cv2.boundingRect(approx)
-                        ar = w / float(h)
-                        shape = "square" if ar >= 0.95 and ar <= 1.05 else "rectangle"
-                    elif len(approx) == 5:
-                        shape = "pentagon"
-                    else:
-                        shape = "circle"            
-
-                    # draw the contour and center of the shape on the image
-                    cv2.drawContours(open_cv_image, [c], -1, (0, 255, 0), 2)
-                    cv2.circle(open_cv_image, (cX, cY), 7, (255, 0, 0), -1)
-                    cv2.putText(open_cv_image, shape, (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-
-                    # show the image
-                    cv2.imshow("Image", open_cv_image)
-                    cv2.waitKey(0)
-                    i=i+1
-
-                    # save the icons locations
-                    if (i<3 and shape == "square"):
-                        square_X=captchaX+cX
-                        square_Y=captchaY+cY
-                        print("square detected at %d,%d" %(square_X,square_Y))
-                    if (i<3 and shape == "circle"):
-                        circle_X=captchaX+cX
-                        circle_Y=captchaY+cY
-                        print("circle detected at %d,%d" %(circle_X,circle_Y))
-                    if (i<3 and shape == "triangle"):
-                        triangle_X=captchaX+cX
-                        triangle_Y=captchaY+cY
-                        print("triangle detected at %d,%d" %(triangle_X,triangle_Y))
-                    if (i>=3 and shape == "triangle"):
-                        redtriangle_X=captchaX+cX
-                        redtriangle_Y=captchaY+cY
-                        print("red triangle detected at %d,%d" %(redtriangle_X,redtriangle_Y))                        
-                    if (i==4):
-                        break  # Discard the rest of the contours           
-
-                #debug
-                target="circle"
-
-                # drag from red triangle and drop on target.
-                if(redtriangle_X!=0 and redtriangle_Y!=0):
-                    print("Red Triangle shape detected!, solving the captcha...")
-                    pyautogui.moveTo(redtriangle_X,redtriangle_Y,duration=4,tween=pyautogui.easeInOutElastic)
-                    pyautogui.mouseDown(button='left')
-                    if  (target == "circle"):
-                        print("dropping into the circle target...")
-                        pyautogui.moveTo(circle_X,circle_Y,duration=4,tween=pyautogui.easeInOutElastic)
-                    elif(target == "square"):
-                        print("dropping into the square target...")                
-                        pyautogui.moveTo(square_X,square_Y,duration=4,tween=pyautogui.easeInOutElastic)                
-                    elif(target == "triangle"):
-                        print("dropping into the triangle target...")                                
-                        pyautogui.moveTo(triangle_X,triangle_Y,duration=4,tween=pyautogui.easeInOutElastic)
-
-                    pyautogui.mouseUp(button='left')
-                    print("Captcha solved!")
-                else:
-                    print("Error! Red Triangle not detected.")
-                
-                cv2.destroyAllWindows()        
-                cv2.waitKey(0)
-                printManualMenu()
-
-            if(keyboard.is_pressed('4')):
-                print ("Clicking Ads Notification Area...")
-                clickAdsNotifications()
-                print("Done")
-                printManualMenu()        
-
-            if(keyboard.is_pressed('5')):
                 print ("Clicking Browsers Icons in taskbar...")
                 touchBrowsers()
                 print("Done")
                 printManualMenu()
 
-            if(keyboard.is_pressed('6')):
+            if(keyboard.is_pressed('3')):
                 print ("Shaking the mouse...")
                 shakeMouse()
                 print("Done")
                 printManualMenu()
 
-            if(keyboard.is_pressed('7')):
+            if(keyboard.is_pressed('4')):
                 print ("Searching Github...")
-                searchSomething()
+                searchSomething("www.github.com/japeral")
                 print("Done")
+                printManualMenu()
+
+            if(keyboard.is_pressed('5')):
+                print ("Clicking Ads Notification Area...")
+                clickAdsNotifications()
+                print("Done")
+                printManualMenu()        
+
+            if(keyboard.is_pressed('6')):
+                closeBrowsers()      
                 printManualMenu()
 
             if(keyboard.is_pressed('esc')):
                 printMainMenu()
                 time.sleep(1)                
                 break
-
 
     if(keyboard.is_pressed('2')):
         print ("Open at least 1 Brave Browser Profile manually and then and press ENTER")
@@ -513,7 +350,7 @@ while(True):
                 shakeMouse()            
                 print ("Waiting 60 seconds... iteration %d" %i)
                 time.sleep(60)          
-                searchSomething()    
+                searchSomething("www.github.com/japeral")
                 time.sleep(2)
                 deleteAdsNotifications()
                 time.sleep(2)
@@ -522,6 +359,193 @@ while(True):
             closeBrowsers()
         printMainMenu()
 
+    if(keyboard.is_pressed('3')):
+        print ("Open at least 1 Brave Browser Profile manually and then and press ENTER")
+        os.system("pause")
+        launchBrowsers()
+        while (True):        
+            touchBrowsers()        
+            print ("Waiting 3 minutes... iteration %d" %i)
+            time.sleep(60*3)          
+            searchSomething("www.github.com/japeral")
+            time.sleep(5)
+            deleteAdsNotifications()
+            time.sleep(2)
+            if(keyboard.is_pressed('esc')):
+                break
+        closeBrowsers()
+        printMainMenu()
+
+    if(keyboard.is_pressed('4')):
+        print("Solving the monthly captcha...")
+        cwd_backup = os.getcwd()
+        for i in range(29,numberOfBrowsers):
+            os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')         
+            command = 'brave.exe --profile-directory="Profile %d"' % i
+            os.system(command)
+            while(psutil.cpu_percent() > 90.0):
+                pass
+            time.sleep(0.5)
+            pyautogui.press('esc')         #to close the 'Restore pages?' popup
+            time.sleep(0.5)                
+            pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
+            time.sleep(0.5)        
+            print("  Profile %d launched:" % i )
+            searchSomething("brave://rewards")
+            time.sleep(2)   #Important to wait for the rewards to fully load.            
+
+            #check if the orange rewards button is present
+            os.chdir (cwd_backup)
+            rewardsButtonLocation = pyautogui.locateOnScreen('claim.png')
+            try:                    
+                rewardsButtonCenter = pyautogui.center(rewardsButtonLocation)
+                x,y=rewardsButtonCenter
+                pyautogui.click(x, y, clicks=1, interval=1, button='left')
+                print("  Rewards 'Claim' Button detected @ %d,%d" %(x,y) )
+            except:
+                print("  Rewards 'Claim' Button is not present!, continue...")
+                continue
+
+            pyautogui.click(captchaX+200, captchaY, clicks=1, interval=1, button='left')
+            pyautogui.vscroll(200)  #click in needed before of scrolling
+            time.sleep(1)    
+
+            #capture the target
+            pyautogui.moveTo(captchaX,captchaY,duration=1)
+            pyautogui.doubleClick(captchaX,captchaY)       
+            pyautogui.hotkey('ctrl','c')
+            target=pyperclip.paste()
+            print("  Detected target: %s" %target)
+            time.sleep(0.5)  
+            pyautogui.click(captchaX+200, captchaY, clicks=1, interval=1, button='left')
+
+            xSnapShift=180
+            ySnapShift=50
+            img=pyautogui.screenshot("captcha_snap.png", region=(int(captchaX)-xSnapShift,int(captchaY)-ySnapShift,350,375))
+            open_cv_image = numpy.array(img)
+            open_cv_image = cv2.cvtColor(open_cv_image, cv2.COLOR_BGR2RGB)
+            gray = cv2.cvtColor(open_cv_image, cv2.COLOR_BGR2GRAY)
+            blurred = cv2.GaussianBlur(gray, (25, 25), 0)
+            thresh = cv2.threshold(blurred, 195, 255, cv2.THRESH_BINARY_INV)[1]
+            #25-25-175 triangle falla
+            #23-23-175 triangle falla
+            #23-23-180 square falla
+            #23-23-185 triangle falla
+            #23-23-190 square falla
+            #23-23-195 triangle falla
+            #23-23-200 triangle falla
+            #23-23-205 square falla, circle ok,
+            cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cnts = imutils.grab_contours(cnts)
+            
+            #init the captcha icons locations
+            square_X=0
+            square_Y=0
+            circle_X=0
+            circle_Y=0
+            triangle_X=0
+            triangle_Y=0
+            redtriangle_X=0
+            redtriangle_Y=0
+
+            # loop over the contours
+            i=0
+            for c in cnts:
+                # compute the center of the contour
+                M = cv2.moments(c)
+                try:
+                    cX = int(M["m10"] / M["m00"])
+                except:
+                    cX=0
+                try:
+                    cY = int(M["m01"] / M["m00"])
+                except:
+                    cY=0
+
+                #identify the shape by the number of vertices, 3=triangle, 4=square,5=pentagon,5+=circle
+                shape = "unidentified"
+                peri = cv2.arcLength(c, True)
+                approx = cv2.approxPolyDP(c, 0.04 * peri, True)
+                if len(approx) == 3:
+                    if i<3:
+                        shape = "triangle"
+                    if i==3:
+                        shape = "red triangle"
+                elif len(approx) == 4:
+                    (x, y, w, h) = cv2.boundingRect(approx)
+                    ar = w / float(h)
+                    shape = "square" if ar >= 0.95 and ar <= 1.05 else "rectangle"
+                elif len(approx) == 5:
+                    shape = "pentagon"
+                else:
+                    shape = "circle"            
+
+                # draw the contour and center of the shape on the image
+                cv2.drawContours(open_cv_image, [c], -1, (0, 255, 0), 2)
+                cv2.circle(open_cv_image, (cX, cY), 7, (255, 0, 0), -1)
+                cv2.putText(open_cv_image, shape, (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+                # save the icons locations
+                if shape == "square":
+                    square_X=cX-xSnapShift+captchaX
+                    square_Y=cY-ySnapShift+captchaY
+                    print("  square detected at %d,%d" %(square_X,square_Y))
+                if shape == "circle":
+                    circle_X=cX-xSnapShift+captchaX
+                    circle_Y=cY-ySnapShift+captchaY
+                    print("  circle detected at %d,%d" %(circle_X,circle_Y))
+                if shape == "triangle":
+                    triangle_X=cX-xSnapShift+captchaX
+                    triangle_Y=cY-ySnapShift+captchaY
+                    print("  triangle detected at %d,%d" %(triangle_X,triangle_Y))
+                if shape == "red triangle":
+                    redtriangle_X=cX-xSnapShift+captchaX
+                    redtriangle_Y=cY-ySnapShift+captchaY
+                    print("  red triangle detected at %d,%d" %(redtriangle_X,redtriangle_Y))
+
+                if(i==3):
+                    # Uncoment to Debug image procesing
+                    cv2.imshow("Image", open_cv_image)  # show the image with 4 shapes detected
+                    cv2.waitKey(0)
+                    # Discard the rest of the contours
+                    break   
+                i=i+1
+
+            # drag from red triangle and drop on target.
+            if(redtriangle_X!=0 and redtriangle_Y!=0 and       #check if all the figures got detected
+                    circle_X!=0 and      circle_Y!=0 and
+                  triangle_X!=0 and    triangle_Y!=0 and
+                    square_X!=0 and      square_X!=0     ):
+                print("Red Triangle shape detected!, solving the captcha...")
+                pyautogui.moveTo(redtriangle_X,redtriangle_Y,duration=4,tween=pyautogui.easeInOutElastic)
+                print("red triangle grabbed!")
+                if  target == "circle ":
+                    print("dropping into the circle target...")
+                    pyautogui.dragTo(circle_X, circle_Y, duration=3,button='left',tween=pyautogui.easeInOutElastic)
+                if target == "square ":
+                    print("dropping into the square target...")                 
+                    pyautogui.dragTo(square_X, square_Y, duration=3,button='left',tween=pyautogui.easeInOutElastic)              
+                if target == "triangle ":
+                    print("dropping into the triangle target...")                                
+                    pyautogui.dragTo(triangle_X, triangle_Y, duration=3,button='left',tween=pyautogui.easeInOutElastic)                
+                print("Captcha solved!")
+            else:
+                print("Error! one or more shapes where not properly detected.")
+            time.sleep(2)
+
+            #click in the OK button
+            os.chdir (cwd_backup)
+            rewardsButtonLocation = pyautogui.locateOnScreen('ok.png')
+            try:                    
+                rewardsButtonCenter = pyautogui.center(rewardsButtonLocation)
+                x,y=rewardsButtonCenter
+                pyautogui.click(x, y, clicks=1, interval=2, button='left')
+                print("Rewards 'OK' Button detected @ %d,%d" %(x,y) )
+            except:
+                print("Rewards 'OK' Button is not present!, continue...")
+            time.sleep(0.5)
+
+        printManualMenu()
 
     if(keyboard.is_pressed('esc')):
         print("Bye bye")
