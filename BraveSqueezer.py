@@ -603,7 +603,7 @@ while(True):
             pyautogui.click(x, y, clicks=1, interval=1, button='left')
             time.sleep(0.5)
 
-            #click in the 5BAT button
+            #click in the 5BAT Button
             try:
                 rewardsButtonLocation = pyautogui.locateOnScreen('5BAT.png')
                 rewardsButtonCenter = pyautogui.center(rewardsButtonLocation)
@@ -611,9 +611,9 @@ while(True):
                 pyautogui.click(x, y, clicks=1, interval=1, button='left')
                 time.sleep(0.5)
             except:
-                print("5BAT button not detected...")
+                print("  5BAT button not detected...")
 
-            #click in the 5BAT button
+            #click in the Send a TIp Button
             try:
                 rewardsButtonLocation = pyautogui.locateOnScreen('SendTipButton.png')
                 rewardsButtonCenter = pyautogui.center(rewardsButtonLocation)
@@ -621,7 +621,7 @@ while(True):
                 pyautogui.click(x, y, clicks=1, interval=1, button='left')
                 time.sleep(0.5)
             except:
-                print("Not enough Balance... continue")
+                print("  Not enough Balance... continue")
 
             pyautogui.hotkey('ctrl','w')  #close browaser tab
 
