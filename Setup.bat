@@ -5,3 +5,6 @@ pip install psutil
 pip install opencv-python
 pip install imutils
 pip install numpy
+pip install pyperclip
+pip install openpyxl
+pip install datetime

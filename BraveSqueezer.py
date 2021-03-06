@@ -1,4 +1,4 @@
-from config import *
+from config_sharkon import *
 import pyautogui
 import mouse
 import time
@@ -395,8 +395,8 @@ while(True):
 
             #check if the orange rewards button is present
             os.chdir (cwd_backup)
-            location = pyautogui.locateOnScreen('claim.png')
-            try:                    
+            try:                 
+                location = pyautogui.locateOnScreen('claim.png')                   
                 center = pyautogui.center(location)
                 x,y=center
                 pyautogui.click(x, y, clicks=1, interval=0.5, button='left')
@@ -404,14 +404,15 @@ while(True):
             except:
                 #check if the X orange rewards button is present
                 os.chdir (cwd_backup)
-                location = pyautogui.locateOnScreen('claim_x.png')
                 try:                    
+                    location = pyautogui.locateOnScreen('claim_x.png')
                     center = pyautogui.center(location)
                     x,y=center
                     pyautogui.click(x, y, clicks=2, interval=1, button='left')  # Close and reload captcha
                     print("  Rewards 'Claim X' Button detected @ %d,%d" %(x,y) )
                 except:
                     print("  Rewards 'Claim' or 'Claim X' buttons are not present!, continue...")
+                    pyautogui.hotkey('ctrl','w')  #close browaser tab
                     continue
 
             pyautogui.click(captchaX+200, captchaY, clicks=1, interval=0.5, button='left')
@@ -621,7 +622,7 @@ while(True):
                 pyautogui.click(x, y, clicks=1, interval=1, button='left')
                 time.sleep(0.5)
             except:
-                print("  Not enough Balance... continue")
+                print("  Not enough Balance, continue...")
 
             pyautogui.hotkey('ctrl','w')  #close browaser tab
 
