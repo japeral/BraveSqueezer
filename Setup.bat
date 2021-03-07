@@ -8,3 +8,4 @@ pip install numpy
 pip install pyperclip
 pip install openpyxl
 pip install datetime
+pip install pillow
