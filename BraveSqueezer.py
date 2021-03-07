@@ -391,7 +391,7 @@ while(True):
             time.sleep(0.5)        
             print(">Profile %d launched:" % i )
             searchSomething("brave://rewards")
-            time.sleep(2)   #Important to wait for the rewards to fully load.            
+            time.sleep(1)   #Important to wait for the rewards to fully load.            
 
             #check if the orange rewards button is present
             os.chdir (cwd_backup)
@@ -403,7 +403,6 @@ while(True):
                 print("  Rewards 'Claim' Button detected @ %d,%d" %(x,y) )
             except:
                 #check if the X orange rewards button is present
-                os.chdir (cwd_backup)
                 try:                    
                     location = pyautogui.locateOnScreen('claim_x.png')
                     center = pyautogui.center(location)
@@ -545,7 +544,8 @@ while(True):
                     pyautogui.dragTo(triangle_X, triangle_Y, duration=1,button='left',tween=pyautogui.easeInOutElastic)                
                 print("  Captcha solved!")
             else:
-                print("  Error! one or more shapes where not properly detected, continue...")
+                i=i-2  # retry this browser
+                print("  Error! one or more shapes where not properly detected, retry %d..." %i)                
                 continue
             time.sleep(2)  #important, give time for the OK button to appear.
 
