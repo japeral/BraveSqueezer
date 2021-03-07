@@ -6,5 +6,7 @@ mouseShakingRecording=[821,825,686,775,564,703,462,613,394,476,359,350,372,240,4
 Xx,Xy=[1256,12]
 searchBar_x,searchBar_y=[418,46]
 adsCounterx,adsCountery=[702,720]
-captchaX,captchaY=[966,497]
+captchaX,captchaY=[957,465]
 adsNotificationX,adsNotificationY=[1143,860]
+
+
