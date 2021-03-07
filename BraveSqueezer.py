@@ -1,4 +1,4 @@
-from config_sharkon import *
+from config_valverde import *
 import pyautogui
 import mouse
 import time
@@ -75,7 +75,7 @@ def printManualMenu():
     print("    Type 'esc' to return to Main Menu")        
 
 def launchBrowsersGetBalances():
-    os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')
+    os.chdir (braveexepath)
     adsThisMonthCounters=[]  # delete the array
     sheet['A1']="Profile"
     sheet['B1']="Ads this month"   
@@ -110,7 +110,7 @@ def launchBrowsersGetBalances():
     print("Done")
 
 def launchBrowsers():
-    os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')
+    os.chdir (braveexe_path)
     for i in range(2,numberOfBrowsers):
         command = 'brave.exe --profile-directory="Profile %d"' % i
         os.system(command)
