@@ -17,16 +17,9 @@ import numpy
 
 #Global variables
 numberOfBrowsers = 61
-browsersLocationsInTaskbar = arr.array('i')
-mouseShakingRecording      = arr.array('i')
-deleteAdsSequence          = arr.array('i')
 adsThisMonthCounters       = arr.array('i')
 workbook = Workbook()
 sheet = workbook.active
-
-deleteAdsSequence=[1245,1003,1220,754,1243,1001]
-mouseShakingRecording=[417,247,442,221,491,192,543,165,596,148,663,141,733,142,795,148,865,168,891,187,918,222,954,293,966,400,942,522,884,604,783,664,668,704,535,717,367,684,253,591,192,415,174,262,172,179,372,178,653,554,532,685,353,613,391,403,468,321,529,261,569,220,639,182,779,154,900,165,1020,227,1083,342,1086,484,1044,578,973,676,844,766,596,836,394,804,265,690,180,442,193,307,267,237,334,227,482,244,637,289,741,350,759,377,762,390,762,391,762,391,762,391,759,396,751,409,746,420,743,426,743,426,743,426]
-browsersLocationsInTaskbar=[182,1002,261,1003,297,1004,372,1008,411,1005,445,1004,486,1004,524,1004,556,1005,597,1002,643,1007,677,1006,718,1002,749,1004,794,1006,823,1006,862,1006,900,1003,942,1003,973,1003,1007,1006,1037,1014,1014,1004,976,1001,934,1002,900,1001,867,1001,825,1001,781,999,753,999,713,1001,676,1001,637,999,598,1000,561,1003,521,1002,479,996,448,1002,418,1003,376,1002,337,1003,300,1001,263,999,219,1004,185,1002,151,1000,108,998,68,999,1038,1015,610,1000,562,1003,515,1003,471,1000,419,999,372,1000,316,998,269,998,224,998,174,1000,132,1000,72,1000]
 
 print("--------------------------------------------------------------------------------------------------")
 print(" Brave ADs Squeezer v1.3")
@@ -381,7 +374,7 @@ while(True):
         print("Solving the monthly captcha...")
         cwd_backup = os.getcwd()
         for i in range(1,numberOfBrowsers):
-            os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')         
+            os.chdir (braveexe_path)         
             command = 'brave.exe --profile-directory="Profile %d"' % i
             os.system(command)
             time.sleep(0.5)
@@ -391,7 +384,7 @@ while(True):
             time.sleep(0.5)        
             print(">Profile %d launched:" % i )
             searchSomething("brave://rewards")
-            time.sleep(1)   #Important to wait for the rewards to fully load.            
+            time.sleep(3)   #Important to wait for the rewards to fully load.            
 
             #check if the orange rewards button is present
             os.chdir (cwd_backup)
