@@ -1,7 +1,11 @@
+<<<<<<< HEAD
 
 test change
 
 from config_laptop import *
+=======
+from config_valverde import *
+>>>>>>> 38727d7698f3b6fd387b2684cd5baa9139ab1212
 import pyautogui
 import mouse
 import time
@@ -20,17 +24,17 @@ import numpy
 
 #Global variables
 numberOfBrowsers = 61
-browsersLocationsInTaskbar = arr.array('i')
-mouseShakingRecording      = arr.array('i')
-deleteAdsSequence          = arr.array('i')
 adsThisMonthCounters       = arr.array('i')
 workbook = Workbook()
 sheet = workbook.active
 
+<<<<<<< HEAD
 deleteAdsSequence=[1886,1058,1855,654,1883,1060]
 mouseShakingRecording=[417,247,442,221,491,192,543,165,596,148,663,141,733,142,795,148,865,168,891,187,918,222,954,293,966,400,942,522,884,604,783,664,668,704,535,717,367,684,253,591,192,415,174,262,172,179,372,178,653,554,532,685,353,613,391,403,468,321,529,261,569,220,639,182,779,154,900,165,1020,227,1083,342,1086,484,1044,578,973,676,844,766,596,836,394,804,265,690,180,442,193,307,267,237,334,227,482,244,637,289,741,350,759,377,762,390,762,391,762,391,762,391,759,396,751,409,746,420,743,426,743,426,743,426]
 browsersLocationsInTaskbar=[630,1061,703,1063,740,1061,776,1060,815,1060,849,1059,888,1058,1002,1060,1033,1062,1072,1059,1108,1060,1150,1057,1186,1059,1224,1058,1263,1058,1332,1056,1373,1059,1407,1062,1446,1059,1484,1057,1588,1059,1629,1058,1657,1071,1623,1058,1569,1056,1425,1055,1374,1056,1336,1055,1288,1060,1232,1054,1193,1054,1093,1053,1040,1056,996,1056,900,1055,809,1051,760,1052,711,1057,655,1050,619,1057,565,1059,473,1055,416,1053,322,1058,270,1056,81,1058,1653,1070,1654,1069,1655,1049,1655,1049,664,1057]
 
+=======
+>>>>>>> 38727d7698f3b6fd387b2684cd5baa9139ab1212
 print("--------------------------------------------------------------------------------------------------")
 print(" Brave ADs Squeezer v1.3")
 print("                                                         by Jose Peral, 3rd March 2021")
@@ -78,7 +82,7 @@ def printManualMenu():
     print("    Type 'esc' to return to Main Menu")        
 
 def launchBrowsersGetBalances():
-    os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')
+    os.chdir (braveexepath)
     adsThisMonthCounters=[]  # delete the array
     sheet['A1']="Profile"
     sheet['B1']="Ads this month"   
@@ -114,7 +118,7 @@ def launchBrowsersGetBalances():
     print("Done")
 
 def launchBrowsers():
-    os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')
+    os.chdir (braveexe_path)
     for i in range(2,numberOfBrowsers):
         command = 'brave.exe --profile-directory="Profile %d"' % i
         os.system(command)
@@ -385,7 +389,7 @@ while(True):
         print("Solving the monthly captcha...")
         cwd_backup = os.getcwd()
         for i in range(1,numberOfBrowsers):
-            os.chdir ('C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\')         
+            os.chdir (braveexe_path)         
             command = 'brave.exe --profile-directory="Profile %d"' % i
             os.system(command)
             time.sleep(0.5)
@@ -395,7 +399,7 @@ while(True):
             time.sleep(0.5)        
             print(">Profile %d launched:" % i )
             searchSomething("brave://rewards")
-            time.sleep(2)   #Important to wait for the rewards to fully load.            
+            time.sleep(3)   #Important to wait for the rewards to fully load.            
 
             #check if the orange rewards button is present
             os.chdir (cwd_backup)
@@ -407,7 +411,6 @@ while(True):
                 print("  Rewards 'Claim' Button detected @ %d,%d" %(x,y) )
             except:
                 #check if the X orange rewards button is present
-                os.chdir (cwd_backup)
                 try:                    
                     location = pyautogui.locateOnScreen('claim_x.png')
                     center = pyautogui.center(location)
@@ -549,7 +552,8 @@ while(True):
                     pyautogui.dragTo(triangle_X, triangle_Y, duration=1,button='left',tween=pyautogui.easeInOutElastic)                
                 print("  Captcha solved!")
             else:
-                print("  Error! one or more shapes where not properly detected, continue...")
+                i=i-2  # retry this browser
+                print("  Error! one or more shapes where not properly detected, retry %d..." %i)                
                 continue
             time.sleep(2)  #important, give time for the OK button to appear.
 
