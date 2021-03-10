@@ -1,4 +1,7 @@
-from config_sharkon import *
+
+test change
+
+from config_laptop import *
 import pyautogui
 import mouse
 import time
@@ -24,9 +27,9 @@ adsThisMonthCounters       = arr.array('i')
 workbook = Workbook()
 sheet = workbook.active
 
-deleteAdsSequence=[1245,1003,1220,754,1243,1001]
+deleteAdsSequence=[1886,1058,1855,654,1883,1060]
 mouseShakingRecording=[417,247,442,221,491,192,543,165,596,148,663,141,733,142,795,148,865,168,891,187,918,222,954,293,966,400,942,522,884,604,783,664,668,704,535,717,367,684,253,591,192,415,174,262,172,179,372,178,653,554,532,685,353,613,391,403,468,321,529,261,569,220,639,182,779,154,900,165,1020,227,1083,342,1086,484,1044,578,973,676,844,766,596,836,394,804,265,690,180,442,193,307,267,237,334,227,482,244,637,289,741,350,759,377,762,390,762,391,762,391,762,391,759,396,751,409,746,420,743,426,743,426,743,426]
-browsersLocationsInTaskbar=[182,1002,261,1003,297,1004,372,1008,411,1005,445,1004,486,1004,524,1004,556,1005,597,1002,643,1007,677,1006,718,1002,749,1004,794,1006,823,1006,862,1006,900,1003,942,1003,973,1003,1007,1006,1037,1014,1014,1004,976,1001,934,1002,900,1001,867,1001,825,1001,781,999,753,999,713,1001,676,1001,637,999,598,1000,561,1003,521,1002,479,996,448,1002,418,1003,376,1002,337,1003,300,1001,263,999,219,1004,185,1002,151,1000,108,998,68,999,1038,1015,610,1000,562,1003,515,1003,471,1000,419,999,372,1000,316,998,269,998,224,998,174,1000,132,1000,72,1000]
+browsersLocationsInTaskbar=[630,1061,703,1063,740,1061,776,1060,815,1060,849,1059,888,1058,1002,1060,1033,1062,1072,1059,1108,1060,1150,1057,1186,1059,1224,1058,1263,1058,1332,1056,1373,1059,1407,1062,1446,1059,1484,1057,1588,1059,1629,1058,1657,1071,1623,1058,1569,1056,1425,1055,1374,1056,1336,1055,1288,1060,1232,1054,1193,1054,1093,1053,1040,1056,996,1056,900,1055,809,1051,760,1052,711,1057,655,1050,619,1057,565,1059,473,1055,416,1053,322,1058,270,1056,81,1058,1653,1070,1654,1069,1655,1049,1655,1049,664,1057]
 
 print("--------------------------------------------------------------------------------------------------")
 print(" Brave ADs Squeezer v1.3")
@@ -92,7 +95,7 @@ def launchBrowsersGetBalances():
         searchSomething("brave://rewards")        
         time.sleep(1)        
         pyautogui.moveTo(adsCounterx,adsCountery,duration=2)
-        pyautogui.vscroll(100)
+        pyautogui.vscroll(200)
         time.sleep(1)                
         pyautogui.doubleClick(adsCounterx,adsCountery)
         pyautogui.hotkey('ctrl','c')
@@ -104,6 +107,7 @@ def launchBrowsersGetBalances():
         print("Profile %d launched, Ads this month counter: %d" % (i,ads) )
         sheet['A%d' %i]=i
         sheet['B%d' %i]=ads
+        pyautogui.hotkey('ctrl','w')  #close browaser tab
     now=datetime.now()
     dirname,filename = os.path.split(os.path.abspath(__file__))
     workbook.save(filename=dirname + "\\" + now.strftime("%Y_%m_%d__%H_%M_%S_") + "balances.xlsx")
@@ -366,7 +370,7 @@ while(True):
         launchBrowsers()
         while (True):        
             touchBrowsers()        
-            print ("Waiting 3 minutes... iteration %d" %i)
+            print ("Waiting 3 minutes...")
             time.sleep(60*3)          
             searchSomething("www.github.com/japeral")
             time.sleep(5)
