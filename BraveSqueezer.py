@@ -1,11 +1,4 @@
-<<<<<<< HEAD
-
-test change
-
-from config_laptop import *
-=======
-from config_valverde import *
->>>>>>> 38727d7698f3b6fd387b2684cd5baa9139ab1212
+from config_labists import *
 import pyautogui
 import mouse
 import time
@@ -23,18 +16,13 @@ import imutils
 import numpy
 
 #Global variables
+prints = 0
+CPU_MIN = 10.0
 numberOfBrowsers = 61
 adsThisMonthCounters       = arr.array('i')
 workbook = Workbook()
 sheet = workbook.active
 
-<<<<<<< HEAD
-deleteAdsSequence=[1886,1058,1855,654,1883,1060]
-mouseShakingRecording=[417,247,442,221,491,192,543,165,596,148,663,141,733,142,795,148,865,168,891,187,918,222,954,293,966,400,942,522,884,604,783,664,668,704,535,717,367,684,253,591,192,415,174,262,172,179,372,178,653,554,532,685,353,613,391,403,468,321,529,261,569,220,639,182,779,154,900,165,1020,227,1083,342,1086,484,1044,578,973,676,844,766,596,836,394,804,265,690,180,442,193,307,267,237,334,227,482,244,637,289,741,350,759,377,762,390,762,391,762,391,762,391,759,396,751,409,746,420,743,426,743,426,743,426]
-browsersLocationsInTaskbar=[630,1061,703,1063,740,1061,776,1060,815,1060,849,1059,888,1058,1002,1060,1033,1062,1072,1059,1108,1060,1150,1057,1186,1059,1224,1058,1263,1058,1332,1056,1373,1059,1407,1062,1446,1059,1484,1057,1588,1059,1629,1058,1657,1071,1623,1058,1569,1056,1425,1055,1374,1056,1336,1055,1288,1060,1232,1054,1193,1054,1093,1053,1040,1056,996,1056,900,1055,809,1051,760,1052,711,1057,655,1050,619,1057,565,1059,473,1055,416,1053,322,1058,270,1056,81,1058,1653,1070,1654,1069,1655,1049,1655,1049,664,1057]
-
-=======
->>>>>>> 38727d7698f3b6fd387b2684cd5baa9139ab1212
 print("--------------------------------------------------------------------------------------------------")
 print(" Brave ADs Squeezer v1.3")
 print("                                                         by Jose Peral, 3rd March 2021")
@@ -54,8 +42,9 @@ def printMainMenu():
     print("  Type  '1'  to enter the Manual Menu")
     print("  Type  '2'  automated loop. Open + shake search 5 times 5 minutes + Close all ")
     print("  Type  '3'  automated loop. Open once, shake + search, close once.")
-    print("  Type  '4'  Solve monthly Captcha on %d browsers" %numberOfBrowsers)  
-    print("  Type  '5'  Donate BAT balances")      
+    print("  Type  '4'  automated loop. Low memory profile 1 browser at a time. Open, read ads, wait 2min, shake, search, close browser.")
+    print("  Type  '5'  Solve monthly Captcha on %d browsers" %numberOfBrowsers)  
+    print("  Type  '6'  Donate BAT balances")      
     print("  Type 'esc' to terminate this program")
 
 def printRecordingMenu():
@@ -81,37 +70,55 @@ def printManualMenu():
     print("    Type  '6'  Close %d browsers" %numberOfBrowsers)        
     print("    Type 'esc' to return to Main Menu")        
 
+def WaitforLowCPU():
+    if(psutil.cpu_percent() > CPU_MIN):
+        if (prints==1):
+            print("  CPU is busy waiting.",end="")
+        while(psutil.cpu_percent() > CPU_MIN):
+            time.sleep(1)
+            if (prints==1):            
+                print(".",end='')
+            pass    
+        if (prints==1):            
+            print(" ")
+
+def GetBalance():
+    pyautogui.moveTo(adsCounterx,adsCountery,duration=2)
+    pyautogui.click(adsCounterx, adsCountery, clicks=1, interval=3, button='left')    
+    pyautogui.vscroll(200)
+    time.sleep(1)                
+    pyautogui.doubleClick(adsCounterx,adsCountery)
+    pyautogui.hotkey('ctrl','c')
+    try:
+        balance=int(pyperclip.paste())
+    except:
+        balance=0
+    return balance
+
 def launchBrowsersGetBalances():
-    os.chdir (braveexepath)
+    os.chdir (braveexe_path)
     adsThisMonthCounters=[]  # delete the array
     sheet['A1']="Profile"
     sheet['B1']="Ads this month"   
-    for i in range(2,numberOfBrowsers):
+    for i in range(1,numberOfBrowsers):
+        WaitforLowCPU()
         command = 'brave.exe --profile-directory="Profile %d"' % i
         os.system(command)
-        while(psutil.cpu_percent() > 90.0):
-            pass
+        WaitforLowCPU()
         time.sleep(1)
         pyautogui.press('esc')         #to close the 'Restore pages?' popup
         time.sleep(0.5)                
         pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
         time.sleep(0.5)        
         searchSomething("brave://rewards")        
-        time.sleep(1)        
-        pyautogui.moveTo(adsCounterx,adsCountery,duration=2)
-        pyautogui.vscroll(200)
-        time.sleep(1)                
-        pyautogui.doubleClick(adsCounterx,adsCountery)
-        pyautogui.hotkey('ctrl','c')
-        try:
-            ads=int(pyperclip.paste())
-        except:
-            ads=0
-        adsThisMonthCounters.append(ads)
-        print("Profile %d launched, Ads this month counter: %d" % (i,ads) )
+        time.sleep(2)        
+        ads=GetBalance()
+        adsThisMonthCounters.append(ads)        
+        print("Profile= %d, Ads= %d" % (i,ads) )        
         sheet['A%d' %i]=i
         sheet['B%d' %i]=ads
         pyautogui.hotkey('ctrl','w')  #close browaser tab
+        WaitforLowCPU()        
     now=datetime.now()
     dirname,filename = os.path.split(os.path.abspath(__file__))
     workbook.save(filename=dirname + "\\" + now.strftime("%Y_%m_%d__%H_%M_%S_") + "balances.xlsx")
@@ -122,7 +129,7 @@ def launchBrowsers():
     for i in range(2,numberOfBrowsers):
         command = 'brave.exe --profile-directory="Profile %d"' % i
         os.system(command)
-        while(psutil.cpu_percent() > 90.0): #Wait for the CPU load to go below 90% before launching a new instance
+        while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
             pass
         time.sleep(1)
         pyautogui.press('esc')         #to close the 'Restore pages?' popup        
@@ -131,8 +138,28 @@ def launchBrowsers():
         time.sleep(0.5)        
     print("Done")
 
+def launchBrowser(i):
+    os.chdir (braveexe_path)
+    command = 'brave.exe --profile-directory="Profile %d"' % i
+    os.system(command)
+    while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
+        pass
+    time.sleep(1)
+    pyautogui.press('esc')         #to close the 'Restore pages?' popup        
+    time.sleep(0.5)                
+    pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
+    time.sleep(0.5)        
+
+def closeBrowser():
+    while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
+        pass
+    pyautogui.moveTo(Xx,Xy,duration=2)
+    pyautogui.click(Xx, Xy, clicks=1, interval=0.5, button='left')
+
 def closeBrowsers():
-    print("Closing Browsers...")                
+    print("Closing Browsers...")      
+    while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
+        pass    
     pyautogui.moveTo(Xx,Xy,duration=2)
     pyautogui.click(Xx, Xy, clicks=numberOfBrowsers, interval=0.5, button='left')
     print("Done")
@@ -151,7 +178,9 @@ def touchBrowsers():
 
 def deleteAdsNotifications():
     i=0
-    print("Deleting previous ads Notifications...")                
+    print("Deleting previous ads Notifications...")   
+    while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
+        pass    
     while i < len(deleteAdsSequence):     
         x=deleteAdsSequence[i]
         y=deleteAdsSequence[i+1]
@@ -164,26 +193,35 @@ def deleteAdsNotifications():
 
 def shakeMouse():
     i=0
-    print("Shaking Mouse to call the Ads... recording lenght=%d" % (len(mouseShakingRecording)) )                
+    if (prints==1):
+        print("  Shaking mouse... ",end="")
+        print("  Shaking Mouse to call the Ads... recording lenght=%d" % (len(mouseShakingRecording)) )                
     while i < len(mouseShakingRecording):     
         x=mouseShakingRecording[i]
         y=mouseShakingRecording[i+1]
-        print("sample: ", i, "x=",x, "y=",y )
+        if (prints==1):        
+            print("sample: ", i, "x=",x, "y=",y )
         pyautogui.moveTo(x,y,duration=0.1)
         i=i+2
-    else:
-        print("Done")               
+    
+    print("Done")               
 
 def searchSomething(url):
-    print("  Searching something in the browser...")                
+    if (prints==1):
+        print("  Searching something in the browser...")                
+    while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
+        pass
     pyautogui.moveTo(searchBar_x,searchBar_y,duration=1)
     pyautogui.click(searchBar_x, searchBar_y, clicks=1, interval=0.1, button='left')    
     pyautogui.write(url, interval=0.05)
     pyautogui.press('enter')
-    print("  Done")
+    if (prints==1):    
+        print("  Done")
 
 def clickAdsNotifications():
     print("Clicking on the Ads Notifications...")
+    while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
+        pass    
     pyautogui.moveTo(adsNotificationX,adsNotificationY,duration=1)
     pyautogui.click(adsNotificationX, adsNotificationY, clicks=21, interval=3, button='left')
     print("Done")            
@@ -374,7 +412,7 @@ while(True):
         launchBrowsers()
         while (True):        
             touchBrowsers()        
-            print ("Waiting 3 minutes...")
+            print ("Waiting 3 minutes... iteration %d" %i)
             time.sleep(60*3)          
             searchSomething("www.github.com/japeral")
             time.sleep(5)
@@ -386,6 +424,47 @@ while(True):
         printMainMenu()
 
     if(keyboard.is_pressed('4')):
+        print ("Open at least 1 Brave Browser Profile manually and then and press ENTER")
+        os.system("pause")
+        prints=0  # Disable prints
+        while (True):
+            adsThisMonthCounters=[]  # delete the array
+            sheet['A1']="Profile"
+            sheet['B1']="Ads this month"        
+            for i in range (2,numberOfBrowsers):
+                WaitforLowCPU()            
+                launchBrowser(i)
+                WaitforLowCPU()                
+                pyautogui.press('esc')         #to close the 'Restore pages?' popup
+                time.sleep(0.5)                
+                pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
+                time.sleep(0.5)        
+                searchSomething("brave://rewards")        
+                if prints==1:
+                    print ("  Waiting 1 minutes...")  # Allow the browser to fully load.
+                time.sleep(60*1)
+                WaitforLowCPU()
+                ads=GetBalance()
+                adsThisMonthCounters.append(ads)    
+                print(">Profile= %d, Ads= %d" % (i,ads) )        
+                sheet['A%d' %i]=i
+                sheet['B%d' %i]=ads
+                WaitforLowCPU()                
+                searchSomething("brave://rewards")
+                WaitforLowCPU()                
+                shakeMouse()                
+                time.sleep(10)                
+                closeBrowser()
+                if(keyboard.is_pressed('esc')):
+                    break
+            now=datetime.now()
+            dirname,filename = os.path.split(os.path.abspath(__file__))
+            workbook.save(filename=dirname + "\\" + now.strftime("%Y_%m_%d__%H_%M_%S_") + "balances.xlsx")
+        prints=1  # Enable prints
+        printMainMenu()
+
+
+    if(keyboard.is_pressed('5')):
         print("Solving the monthly captcha...")
         cwd_backup = os.getcwd()
         for i in range(1,numberOfBrowsers):
@@ -574,7 +653,7 @@ while(True):
         printMainMenu()
 
 
-    if(keyboard.is_pressed('5')):
+    if(keyboard.is_pressed('6')):
         print("Donating all the BAT balances...")
         cwd_backup = os.getcwd()
         for i in range(8,numberOfBrowsers):
