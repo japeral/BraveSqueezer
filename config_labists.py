@@ -8,4 +8,4 @@ mouseShakingRecording=[1665,724,1688,578,1681,407,1636,329,1605,293,1548,264,147
 Xx,Xy=[1894,15]
 searchBar_x,searchBar_y=[661,44]
 adsCounterx,adsCountery=[1022,721]
-adsNotificationX,adsNotificationY=[1787,943]
+adsNotificationX,adsNotificationY=[1724,999]

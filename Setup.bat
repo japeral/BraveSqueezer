@@ -2,7 +2,7 @@ pip install pyautogui
 pip install mouse
 pip install keyboard
 pip install psutil
-pip install opencv-python
+pip install pip install opencv-contrib-python
 pip install imutils
 pip install numpy
 pip install pyperclip
