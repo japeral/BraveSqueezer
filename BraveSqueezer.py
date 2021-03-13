@@ -366,7 +366,7 @@ while(True):
         launchBrowsers()
         while (True):        
             touchBrowsers()        
-            print ("Waiting 3 minutes... iteration %d" %i)
+            print ("Waiting 3 minutes... iteration %d")
             time.sleep(60*3)          
             searchSomething("www.github.com/japeral")
             time.sleep(5)
