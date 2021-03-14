@@ -8,13 +8,6 @@ browsersLocationsInTaskbar=[630,1060,703,1058,738,1057,774,1059,812,1057,851,106
 Xx,Xy=[1896,13]
 adsNotificationX,adsNotificationY=[1697,935]
 
-#searchBar_x,searchBar_y=[960,45]  # pantalla laptop 100% zoom
-#adsCounterx,adsCountery=[1019,718] # pantalla laptop 100% zoom
-#captchaX,captchaY=[1288,463] # pantalla laptop 100% zoom
-
-#adsCounterx,adsCountery=[1006,590] # pantalla laptop 80% zoom
-#captchaX,captchaY=[1210,381]  #pantalla laptop  80% zoom
-
 searchBar_x,searchBar_y=[585,57] # monitor grande 100% zoom
-adsCounterx,adsCountery=[1019,751] # monitor grande 100% zoom
+adsCounterx,adsCountery=[1020,722] # monitor grande 100% zoom
 captchaX,captchaY=[1283,463]  # monitor grande 100% zoom
