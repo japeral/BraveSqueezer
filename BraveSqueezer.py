@@ -24,7 +24,7 @@ adsThisMonthCounters       = arr.array('i')
 workbook = Workbook()
 sheet = workbook.active
 cwd_backup = os.getcwd()  # Save a copy of the current working directory.
-wait = 2                  # Time between buttons detections.
+wait = 4                  # Time between buttons detections.
 
 print("--------------------------------------------------------------------------------------------------")
 print(" Brave ADs Squeezer v1.4")
@@ -134,11 +134,11 @@ def launchBrowsers():
         os.system(command)
         while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
             pass
-        time.sleep(1)
+        time.sleep(4)
         pyautogui.press('esc')         #to close the 'Restore pages?' popup        
-        time.sleep(0.5)                
+        time.sleep(2)                
         pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
-        time.sleep(0.5)        
+        time.sleep(2)        
     print("Done")
 
 def launchBrowser(i):
@@ -227,10 +227,11 @@ def clickAdsNotifications():
     while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
         pass    
     pyautogui.moveTo(adsNotificationX,adsNotificationY,duration=1)
-    pyautogui.click(adsNotificationX, adsNotificationY, clicks=21, interval=1, button='left')
+    pyautogui.click(adsNotificationX, adsNotificationY, clicks=10, interval=3, button='left')
     print("Done")            
 
 def BrowserInitialize():
+    time.sleep(wait)        
     os.chdir (cwd_backup)        # Restore local working directory
     try:                 
         x,y= pyautogui.locateCenterOnScreen('start_using_rewards.png')
@@ -248,7 +249,7 @@ def BrowserInitialize():
     except:
         print("  Error. Skip button not found. End initializing.")
         return
-    time.sleep(wait)    
+    time.sleep(1)    
 
 def AutocontributeOff5adsPerHour():
     try:                 
@@ -258,7 +259,7 @@ def AutocontributeOff5adsPerHour():
     except:
         return
     print("  autocontribute_switch turned OFF")
-    time.sleep(wait)    
+    time.sleep(1)    
 
     try:
         x,y= pyautogui.locateCenterOnScreen('ads_settings.png')
@@ -267,7 +268,7 @@ def AutocontributeOff5adsPerHour():
     except:
         print("  Error. ads_settings button not found. End initializing.")
         return
-    time.sleep(wait)    
+    time.sleep(1)    
 
     try:
         x,y= pyautogui.locateCenterOnScreen('ads_dropdown.png')
@@ -276,7 +277,7 @@ def AutocontributeOff5adsPerHour():
     except:
         print("  Error. ads_dropdown button not found. End initializing.")
         return
-    time.sleep(wait)            
+    time.sleep(1)            
 
     try:
         x,y= pyautogui.locateCenterOnScreen('5ads_per_hour.png')
@@ -285,7 +286,7 @@ def AutocontributeOff5adsPerHour():
     except:
         print("  Error. 5ads_per_hour button not found. End initializing.")
         return
-    time.sleep(wait)    
+    time.sleep(1)    
 
     try:
         x,y= pyautogui.locateCenterOnScreen('ads_x.png')
@@ -295,7 +296,7 @@ def AutocontributeOff5adsPerHour():
         print("  Error. ads_x button not found. End initializing.")
         return
     print("    Initialization Done")
-    time.sleep(wait)    
+    time.sleep(1)    
 
 
 
@@ -506,24 +507,24 @@ while(True):
             sheet['B1']="Ads this month"        
 
             for i in range (61,numberOfBrowsers):
+                print(">Profile= %d" %i, end="")
                 WaitforLowCPU()                     # Wait till PCU is ready.
                 launchBrowser(i)                    # Launch browser, press key Esc, Maximize pressing with Win+Up.
                 searchSomething("brave://rewards")  # Quickly search Rewards.
-                time.sleep(60)                      # Important to wait for the rewards tab to fully load.            
+                time.sleep(30)                      # Important to wait for the rewards tab to fully load.            
                 WaitforLowCPU()                     # Wait till CPU is ready.
                 BrowserInitialize()                 # Check Browser initialization: if it has not been initialized, initialize.
                 AutocontributeOff5adsPerHour()      # if Autocontribute On, Set autocontribute OFF & 5 ads per hour.
                 ads=GetBalance()                    # Gather the number of ads received
                 adsThisMonthCounters.append(ads)    
-                print(">Profile= %d, Ads= %d" % (i,ads) )        
+                print("  Ads= %d" % ads )
                 sheet['A%d' %i]=i
                 sheet['B%d' %i]=ads
                 WaitforLowCPU()                
                 searchSomething("www.github.com/japeral")
-                WaitforLowCPU()                
-                shakeMouse()                
-                clickAdsNotifications()
-                time.sleep(60)                
+                time.sleep(30)                              
+                shakeMouse()
+                clickAdsNotifications()                  
                 closeBrowser()
                 if(keyboard.is_pressed('esc')):
                     break
