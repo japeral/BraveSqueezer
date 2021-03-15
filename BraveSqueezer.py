@@ -1,4 +1,4 @@
-from config_sharkon import *  # <- Select here the appropiate config file.
+from config_labists import *  # <- Select here the appropiate config file.
 
 import pyautogui
 import mouse
@@ -147,12 +147,6 @@ def launchBrowser(i):
     os.system(command)
     while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
         pass
-    time.sleep(1)
-    pyautogui.press('esc')         #to close the 'Restore pages?' popup        
-    time.sleep(0.5)                
-    pyautogui.hotkey('win','up')   #Maximize all browser windows to align the [x] buttons on the same coordinates.
-    time.sleep(0.5)        
-
 
 def closeBrowser():
     while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
@@ -317,6 +311,7 @@ def AutocontributeOff5adsPerHour():
 def WaitforReadyAndClick(image, max_seconds,click):
     ready = 0
     retry = 0
+    excepted =0
     os.chdir (cwd_backup)        # Restore local working directory    
     while(ready == 0):
         time.sleep(1)            # wait 1 second.
@@ -327,9 +322,13 @@ def WaitforReadyAndClick(image, max_seconds,click):
                 pyautogui.click(x, y, clicks=1, interval=0.5, button='left')
         except:
             retry = retry + 1
-            print("  ",image," retry=", retry, end="", flush=True)
+            if (excepted == 0):
+                print("  %s retry: %02d/%02d" %(image,retry,max_seconds),end="",flush=True)
+            else:
+                print("\b\b\b\b\b%02d/%02d" %(retry,max_seconds), end="", flush=True)
             if (retry >= max_seconds) :
                 exit()
+            excepted = 1
             continue
         ready = 1
 
@@ -543,10 +542,15 @@ while(True):
             for i in range (2,numberOfBrowsers):
                 print(">Profile= %d" %i, end="")
                 WaitforLowCPU()                                # Wait till PCU is ready.
-                launchBrowser(i)                               # Launch browser, press key Esc, Maximize pressing with Win+Up.
-                WaitforReadyAndClick("brave_search.png",20,0)  # Wait till image is visible, no click.
-                searchSomething("brave://rewards")             # Quickly search Rewards.
-                WaitforReadyAndClick("brave_rewards.png",20,1) # Wait till image is visible and click.
+                launchBrowser(i)                               # Launch browser
+                WaitforReadyAndClick("brave_search.png",60,0)  # Wait till image is visible, 60 retries, no click.
+                time.sleep(3)
+                pyautogui.press('esc')                         #to close the 'Restore pages?' popup        
+                time.sleep(1)                
+                pyautogui.hotkey('win','up')                   #Maximize all browser windows to align the [x] buttons on the same coordinates.
+                time.sleep(1)        
+                searchSomething("brave://rewards")             # Search Rewards.
+                WaitforReadyAndClick("brave_rewards.png",60,1) # Wait till image is visible, click to get focus on Brave Browser window.
                 BrowserInitialize()                            # Check Browser initialization: if it has not been initialized, initialize.
                 AutocontributeOff5adsPerHour()                 # if Autocontribute On, Set autocontribute OFF & 5 ads per hour.
                 ads=GetBalance()                               # Gather the number of ads received
