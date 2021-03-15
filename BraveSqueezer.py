@@ -1,4 +1,4 @@
-from config_labists import *  # <- Select here the appropiate config file.
+from config_sharkon import *  # <- Select here the appropiate config file.
 
 import pyautogui
 import mouse
@@ -24,7 +24,7 @@ adsThisMonthCounters       = arr.array('i')
 workbook = Workbook()
 sheet = workbook.active
 cwd_backup = os.getcwd()  # Save a copy of the current working directory.
-wait = 4                  # Time between buttons detections.
+wait = 2                  # Time between buttons detections.
 
 print("--------------------------------------------------------------------------------------------------")
 print(" Brave ADs Squeezer v1.4")
@@ -173,12 +173,14 @@ def touchBrowsers():
     while i < len(browsersLocationsInTaskbar):     
         x=browsersLocationsInTaskbar[i]
         y=browsersLocationsInTaskbar[i+1]
-        print("sample: ", i, "x=",x, "y=",y )
+        if print == 1:
+            print("sample: ", i, "x=",x, "y=",y )
         pyautogui.moveTo(x,y,duration=1)
         pyautogui.click(x, y, clicks=1, interval=1, button='left')
         i=i+2
     else:
-        print("Done") 
+        if print == 1:
+            print("Done") 
 
 def deleteAdsNotifications():
     i=0
@@ -188,12 +190,14 @@ def deleteAdsNotifications():
     while i < len(deleteAdsSequence):     
         x=deleteAdsSequence[i]
         y=deleteAdsSequence[i+1]
-        print("sample: ", i, "x=",x, "y=",y )
+        if prints == 1:
+            print("sample: ", i, "x=",x, "y=",y )
         pyautogui.moveTo(x,y,duration=1)
         pyautogui.click(x, y, clicks=1, interval=4, button='left')
         i=i+2
     else:
-        print("Done") 
+        if prints == 1:
+            print("Done") 
 
 def shakeMouse():
     i=0
@@ -223,12 +227,24 @@ def searchSomething(url):
         print("  Done")
 
 def clickAdsNotifications():
-    print("Clicking on the Ads Notifications...")
+    if (prints==1):
+        print("Clicking on the Ads Notifications...")
     while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
         pass    
     pyautogui.moveTo(adsNotificationX,adsNotificationY,duration=1)
-    pyautogui.click(adsNotificationX, adsNotificationY, clicks=10, interval=3, button='left')
-    print("Done")            
+    pyautogui.click(adsNotificationX, adsNotificationY, clicks=20, interval=3, button='left')
+    if (prints==1):   
+        print("Done")         
+
+def clickAdsNotification():
+    if (prints==1):
+        print("Clicking on the Ads Notifications...")
+    while(psutil.cpu_percent() > CPU_MIN): #Wait for the CPU load to go below x% before launching a new instance
+        pass    
+    pyautogui.moveTo(adsNotificationX,adsNotificationY,duration=1)
+    pyautogui.click(adsNotificationX, adsNotificationY, clicks=1, interval=3, button='left')
+    if (prints==1):   
+        print("Done")         
 
 def BrowserInitialize():
     time.sleep(wait)        
@@ -297,7 +313,25 @@ def AutocontributeOff5adsPerHour():
         return
     print("    Initialization Done")
     time.sleep(1)    
-
+        
+def WaitforReadyAndClick(image, max_seconds,click):
+    ready = 0
+    retry = 0
+    os.chdir (cwd_backup)        # Restore local working directory    
+    while(ready == 0):
+        time.sleep(1)            # wait 1 second.
+        try:
+            x,y= pyautogui.locateCenterOnScreen(image, confidence=0.9)
+            pyautogui.moveTo(x, y, duration=1)
+            if (click==1):
+                pyautogui.click(x, y, clicks=1, interval=0.5, button='left')
+        except:
+            retry = retry + 1
+            print("  ",image," retry=", retry, end="", flush=True)
+            if (retry >= max_seconds) :
+                exit()
+            continue
+        ready = 1
 
 
 printMainMenu()
@@ -506,26 +540,28 @@ while(True):
             sheet['A1']="Profile"
             sheet['B1']="Ads this month"        
 
-            for i in range (61,numberOfBrowsers):
+            for i in range (2,numberOfBrowsers):
                 print(">Profile= %d" %i, end="")
-                WaitforLowCPU()                     # Wait till PCU is ready.
-                launchBrowser(i)                    # Launch browser, press key Esc, Maximize pressing with Win+Up.
-                searchSomething("brave://rewards")  # Quickly search Rewards.
-                time.sleep(30)                      # Important to wait for the rewards tab to fully load.            
-                WaitforLowCPU()                     # Wait till CPU is ready.
-                BrowserInitialize()                 # Check Browser initialization: if it has not been initialized, initialize.
-                AutocontributeOff5adsPerHour()      # if Autocontribute On, Set autocontribute OFF & 5 ads per hour.
-                ads=GetBalance()                    # Gather the number of ads received
+                WaitforLowCPU()                                # Wait till PCU is ready.
+                launchBrowser(i)                               # Launch browser, press key Esc, Maximize pressing with Win+Up.
+                WaitforReadyAndClick("brave_search.png",20,0)  # Wait till image is visible, no click.
+                searchSomething("brave://rewards")             # Quickly search Rewards.
+                WaitforReadyAndClick("brave_rewards.png",20,1) # Wait till image is visible and click.
+                BrowserInitialize()                            # Check Browser initialization: if it has not been initialized, initialize.
+                AutocontributeOff5adsPerHour()                 # if Autocontribute On, Set autocontribute OFF & 5 ads per hour.
+                ads=GetBalance()                               # Gather the number of ads received
                 adsThisMonthCounters.append(ads)    
                 print("  Ads= %d" % ads )
                 sheet['A%d' %i]=i
                 sheet['B%d' %i]=ads
                 WaitforLowCPU()                
                 searchSomething("www.github.com/japeral")
-                time.sleep(30)                              
-                shakeMouse()
-                clickAdsNotifications()                  
+                time.sleep(30)           
+                shakeMouse()                                
+                clickAdsNotification()                         # click only ond advert.                
+                time.sleep(10)                              
                 closeBrowser()
+                time.sleep(10)                              
                 if(keyboard.is_pressed('esc')):
                     break
             now=datetime.now()
