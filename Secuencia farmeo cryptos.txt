@@ -1,0 +1,19 @@
+Secuencia CryptoFarm
+
+1ª Abrir navegador con la accion de mover el mouse y las cordenadas X,Y
+    Win arriba para maximizar
+
+2ª Buscar en el navegador la web de cada faucet, x/10
+    buscarAda, Buscardash, 1 def para cada faucet (busqueda distinta)
+
+3ªClickroll una vez ya esta en la pagina abierta baja 5 veces al down
+    para que se vea el boton que clickea, se mueve a las cordenadas del boton
+   y clickea una vez
+
+4ª comienza otra vez la secuencia pero solo es mover el raton a la barra de busqueda 
+    del navegador y poner la siguiente faucet, Buscardash.. 
+    el total de faucets son 10
+    y cuando acaba las 10 faucets , sleep una hora (3600 seg), eso todavia no lo he acabao
+y me falta ahcer 8 def: ya tengo hechos dos para probar ada y dash
+
+    
